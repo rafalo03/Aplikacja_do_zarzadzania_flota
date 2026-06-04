@@ -85,17 +85,31 @@ class Konfiguracja(models.Model):
 
 
 class Pojazd(models.Model):
+    STATUS = [
+        ('dostepny', 'Dostępny'),
+        ('wynajety', 'Wynajęty'),
+        ('serwis', 'W serwisie'),
+    ]
+
+    STAN = [
+        ('w_przygotowaniu', 'W przygotowaniu'),
+        ('w_eksploatacji', 'W eksploatacji'),
+        ('wylaczony', 'Wyłączony z eksploatacji'),
+        ('do_wycofania', 'Do wycofania'),
+    ]
+
     konfiguracja = models.ForeignKey(Konfiguracja, on_delete=models.PROTECT, related_name='pojazdy')
     numer_rejestracyjny = models.CharField(max_length=20, unique=True)
     rok_produkcji = models.IntegerField()
     data_zakupu = models.DateField()
     przebieg_km = models.IntegerField(default=0)
     vin = models.CharField(max_length=17, unique=True, null=True, blank=True)
-    status = models.CharField(max_length=20, choices=[
-        ('dostepny', 'Dostępny'),
-        ('wynajety', 'Wynajęty'),
-        ('serwis', 'W serwisie'),
-    ], default='dostepny')
+    status = models.CharField(max_length=20, choices=STATUS, default='dostepny')
+    stan = models.CharField(max_length=20, choices=STAN, default='w_przygotowaniu')
+    oddzial = models.CharField(max_length=50, null=True, blank=True)
+    dostawca = models.CharField(max_length=100, null=True, blank=True)
+    wlasciciel = models.CharField(max_length=100, null=True, blank=True)
+    wspolwlasciciel = models.CharField(max_length=100, null=True, blank=True)
     data_przegladu = models.DateField(null=True, blank=True)
     data_ubezpieczenia = models.DateField(null=True, blank=True)
 
@@ -105,3 +119,35 @@ class Pojazd(models.Model):
     class Meta:
         verbose_name = 'Pojazd'
         verbose_name_plural = 'Pojazdy'
+
+class Polisa(models.Model):
+    RODZAJ_POLISY = [
+        ('oc', 'OC'),
+        ('ac', 'AC'),
+        ('oc_ac', 'OC + AC'),
+        ('nnw', 'NNW'),
+        ('assistance', 'Assistance'),
+    ]
+
+    pojazd = models.ForeignKey(Pojazd, on_delete=models.PROTECT, related_name='polisy')
+    rodzaj = models.CharField(max_length=20, choices=RODZAJ_POLISY)
+    numer_umowy_generalnej = models.CharField(max_length=50, null=True, blank=True)
+    numer_polisy = models.CharField(max_length=50, unique=True)
+    data_od = models.DateField()
+    data_do = models.DateField(blank=True, null=True)
+    ubezpieczyciel = models.CharField(max_length=100, null=True, blank=True)
+    uwagi = models.TextField(null=True, blank=True)
+    skan = models.FileField(upload_to='polisy/', null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if self.data_od and not self.data_do:
+            from dateutil.relativedelta import relativedelta
+            self.data_do = self.data_od + relativedelta(years=1) - relativedelta(days=1)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.numer_polisy} - {self.pojazd}"
+
+    class Meta:
+        verbose_name = 'Polisa'
+        verbose_name_plural = 'Polisy'
