@@ -1,4 +1,5 @@
 from django.db import models
+from kontrahenci.models import Kontrahent
 
 class Marka(models.Model):
     nazwa = models.CharField(max_length=50)
@@ -107,9 +108,9 @@ class Pojazd(models.Model):
     status = models.CharField(max_length=20, choices=STATUS, default='dostepny')
     stan = models.CharField(max_length=20, choices=STAN, default='w_przygotowaniu')
     oddzial = models.CharField(max_length=50, null=True, blank=True)
-    dostawca = models.CharField(max_length=100, null=True, blank=True)
-    wlasciciel = models.CharField(max_length=100, null=True, blank=True)
-    wspolwlasciciel = models.CharField(max_length=100, null=True, blank=True)
+    dostawca = models.ForeignKey(Kontrahent, on_delete=models.SET_NULL, null=True, blank=True, related_name='pojazdy_dostarczone')
+    wlasciciel = models.ForeignKey(Kontrahent, on_delete=models.SET_NULL, null=True, blank=True, related_name='pojazdy_wlasne')
+    wspolwlasciciel = models.ForeignKey(Kontrahent, on_delete=models.SET_NULL, null=True, blank=True, related_name='pojazdy_wspolwlasne')
     data_przegladu = models.DateField(null=True, blank=True)
     data_ubezpieczenia = models.DateField(null=True, blank=True)
 
