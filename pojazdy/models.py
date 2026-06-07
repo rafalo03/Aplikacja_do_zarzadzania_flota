@@ -23,6 +23,16 @@ class ModelPojazdu(models.Model):
         verbose_name = 'Model pojazdu'
         verbose_name_plural = 'Modele pojazdów'
 
+class KlasaPojazdu(models.Model):
+    nazwa = models.CharField(max_length=50)
+    opis = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return self.nazwa
+
+    class Meta:
+        verbose_name = 'Klasa pojazdu'
+        verbose_name_plural = 'Klasy pojazdów'
 
 class Konfiguracja(models.Model):
     TYP_NADWOZIA = [
@@ -50,6 +60,7 @@ class Konfiguracja(models.Model):
     model = models.ForeignKey(ModelPojazdu, on_delete=models.CASCADE, related_name='konfiguracje')
     wersja_wyposazenia = models.CharField(max_length=50)
     typ_nadwozia = models.CharField(max_length=20, choices=TYP_NADWOZIA)
+    klasa_pojazdu = models.ForeignKey(KlasaPojazdu, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Klasa pojazdu')
     liczba_drzwi = models.IntegerField(default=5)
     maksymalna_liczba_pasazerow = models.IntegerField(default=5)
     pojemnosc_silnika = models.CharField(max_length=20)
