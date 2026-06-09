@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 from kontrahenci.models import Kontrahent
 
 class Marka(models.Model):
@@ -110,6 +111,7 @@ class Pojazd(models.Model):
         ('do_wycofania', 'Do wycofania'),
     ]
 
+    id_pojazdu = models.CharField(max_length=20, unique=True, editable=False, blank=True)
     konfiguracja = models.ForeignKey(Konfiguracja, on_delete=models.PROTECT, related_name='pojazdy')
     numer_rejestracyjny = models.CharField(max_length=20, unique=True)
     rok_produkcji = models.IntegerField()
@@ -125,6 +127,13 @@ class Pojazd(models.Model):
     data_przegladu = models.DateField(null=True, blank=True)
     data_ubezpieczenia = models.DateField(null=True, blank=True)
 
+    def save(self, *args, **kwargs):
+        if not self.id_pojazdu:
+            rok = timezone.now().year
+            ostatni = Pojazd.objects.filter(id_pojazdu__startswith=f'POJ/{rok}/').count()
+            numer = str(ostatni + 1).zfill(3)
+            self.id_pojazdu = f'POJ/{rok}/{numer}'
+        super().save(*args, **kwargs)
     def __str__(self):
         return f"{self.konfiguracja} ({self.numer_rejestracyjny})"
 
@@ -133,16 +142,11 @@ class Pojazd(models.Model):
         verbose_name_plural = 'Pojazdy'
 
 class Polisa(models.Model):
-    RODZAJ_POLISY = [
-        ('oc', 'OC'),
-        ('ac', 'AC'),
-        ('oc_ac', 'OC + AC'),
-        ('nnw', 'NNW'),
-        ('assistance', 'Assistance'),
-    ]
-
     pojazd = models.ForeignKey(Pojazd, on_delete=models.PROTECT, related_name='polisy')
-    rodzaj = models.CharField(max_length=20, choices=RODZAJ_POLISY)
+    rodzaj_oc = models.BooleanField(default=False, verbose_name='OC')
+    rodzaj_ac = models.BooleanField(default=False, verbose_name='AC')
+    rodzaj_nnw = models.BooleanField(default=False, verbose_name='NNW')
+    rodzaj_assistance = models.BooleanField(default=False, verbose_name='Assistance')
     numer_umowy_generalnej = models.CharField(max_length=50, null=True, blank=True)
     numer_polisy = models.CharField(max_length=50, unique=True)
     data_od = models.DateField()

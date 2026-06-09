@@ -1,0 +1,70 @@
+<h1 class="page-title">Lista pojazdów</h1>
+<div class="card" style="margin-bottom: 16px;">
+    <form method="get" style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+        <input type="text" name="szukaj" value="{{ szukaj }}" placeholder="Szukaj po marce, modelu, rejestracji..." class="filter-input">
+        <select name="status" class="filter-select">
+            <option value="">Wszystkie statusy</option>
+            <option value="dostepny" {% if status == 'dostepny' %}selected{% endif %}>Dostępny</option>
+            <option value="wynajety" {% if status == 'wynajety' %}selected{% endif %}>Wynajęty</option>
+            <option value="serwis" {% if status == 'serwis' %}selected{% endif %}>W serwisie</option>
+        </select>
+        <select name="stan" class="filter-select">
+            <option value="">Wszystkie stany</option>
+            <option value="w_przygotowaniu" {% if stan == 'w_przygotowaniu' %}selected{% endif %}>W przygotowaniu</option>
+            <option value="w_eksploatacji" {% if stan == 'w_eksploatacji' %}selected{% endif %}>W eksploatacji</option>
+            <option value="wylaczony" {% if stan == 'wylaczony' %}selected{% endif %}>Wyłączony</option>
+            <option value="do_wycofania" {% if stan == 'do_wycofania' %}selected{% endif %}>Do wycofania</option>
+        </select>
+        <button type="submit" class="btn btn-primary">Szukaj</button>
+        <a href="{% url 'pojazdy' %}" class="btn btn-secondary">Wyczyść</a>
+        <button type="button" class="btn btn-secondary" onclick="toggleKolumny()">Kolumny</button>
+    </form>
+</div>
+<div class="card" id="panel-kolumn" style="display:none; margin-bottom: 16px;">
+    <p style="font-weight: 600; margin-bottom: 12px;">Widoczne kolumny:</p>
+    <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+        <label><input type="checkbox" class="col-toggle" data-col="0" checked> Marka / Model</label>
+        <label><input type="checkbox" class="col-toggle" data-col="1" checked> Nr rejestracyjny</label>
+        <label><input type="checkbox" class="col-toggle" data-col="2" checked> Rok</label>
+        <label><input type="checkbox" class="col-toggle" data-col="3" checked> Przebieg</label>
+        <label><input type="checkbox" class="col-toggle" data-col="4" checked> Status</label>
+        <label><input type="checkbox" class="col-toggle" data-col="5" checked> Stan</label>
+        <label><input type="checkbox" class="col-toggle" data-col="6" checked> Akcje</label>
+    </div>
+</div>
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3>Pojazdy ({{ pojazdy.count }})</h3>
+        <a href="{% url 'dodaj_pojazd' %}" class="btn btn-primary">+ Dodaj pojazd</a>
+    </div>
+    <table class="table" id="tabela-pojazdow">
+        <thead>
+            <tr>
+                <th>Marka / Model</th>
+                <th>Nr rejestracyjny</th>
+                <th>Rok</th>
+                <th>Przebieg</th>
+                <th>Status</th>
+                <th>Stan</th>
+                <th>Akcje</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for pojazd in pojazdy %}
+            <tr>
+                <td>{{ pojazd.konfiguracja.model.marka }} {{ pojazd.konfiguracja.model.nazwa }} {{ pojazd.konfiguracja.wersja_wyposazenia }}</td>
+                <td>{{ pojazd.numer_rejestracyjny }}</td>
+                <td>{{ pojazd.rok_produkcji }}</td>
+                <td>{{ pojazd.przebieg_km }} km</td>
+                <td>{{ pojazd.get_status_display }}</td>
+                <td>{{ pojazd.get_stan_display }}</td>
+                <td><a href="#" class="btn btn-primary" style="font-size: 12px; padding: 4px 10px;">Szczegóły</a></td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" style="text-align: center; color: var(--text-muted);">Brak pojazdów</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

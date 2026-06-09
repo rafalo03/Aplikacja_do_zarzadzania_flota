@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pl" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Aplikacja Flotowa{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+</head>
+<body>
+
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <h2>Aplikacja Flotowa</h2>
+            </div>
+            <nav class="sidebar-nav">
+    <a href="/" hx-get="/" hx-target="#main-content" hx-push-url="true">Dashboard</a>
+
+    <div class="nav-group">
+    <div class="nav-group-header" onclick="toggleMenu(this)">Pojazdy <span class="arrow">▶</span>
+    </div>
+    <div class="nav-group-items">
+        <a href="/pojazdy/" hx-get="/pojazdy/" hx-target="#main-content" hx-push-url="true">Lista pojazdów</a>
+        <a href="/polisy/" hx-get="/polisy/" hx-target="#main-content" hx-push-url="true">Polisy</a>
+        <div class="nav-subgroup">
+            <div class="nav-subgroup-header" onclick="toggleSubMenu(this)">Dane <span class="arrow">▶</span>
+            </div>
+            <div class="nav-subgroup-items">
+                <a href="#">Marki i modele</a>
+                <a href="#">Klasy pojazdów</a>
+                <a href="#">Konfiguracje</a>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+    <div class="nav-group">
+        <div class="nav-group-header" onclick="toggleMenu(this)">Wynajem <span class="arrow">▶</span>
+        </div>
+        <div class="nav-group-items">
+            <a href="#">Rezerwacje</a>
+            <a href="#">Użytkownicy pojazdów</a>
+            <a href="#">Cenniki</a>
+        </div>
+    </div>
+
+    <div class="nav-group">
+        <div class="nav-group-header" onclick="toggleMenu(this)">Kontrahenci <span class="arrow">▶</span>
+        </div>
+        <div class="nav-group-items">
+            <a href="#">Kontrahenci</a>
+        </div>
+    </div>
+</nav>
+        </aside>
+
+        <div class="main">
+
+            <header class="topbar">
+                <button class="theme-toggle" onclick="toggleTheme()">Tryb ciemny</button>
+            </header>
+
+            <main class="content" id="main-content">
+                {% block content %}
+                {% endblock %}
+            </main>
+
+        </div>
+    </div>
+
+    <script src="{% static 'js/main.js' %}">
+    </script>
+</body>
+</html>

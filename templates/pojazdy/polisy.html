@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Polisy{% endblock %}
+{% block page_title %}Polisy ubezpieczeniowe{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3>Wszystkie polisy ({{ polisy.count }})</h3>
+        <a href="{% url 'dodaj_polise' %}" class="btn btn-primary">+ Dodaj polisę</a>
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Pojazd</th>
+                <th>Rodzaj</th>
+                <th>Numer polisy</th>
+                <th>Ubezpieczyciel</th>
+                <th>Data od</th>
+                <th>Data do</th>
+                <th>Akcje</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for polisa in polisy %}
+            <tr>
+                <td>{{ polisa.pojazd }}</td>
+                <td>{{ polisa.get_rodzaj_display }}</td>
+                <td>{{ polisa.numer_polisy }}</td>
+                <td>{{ polisa.ubezpieczyciel|default:"-" }}</td>
+                <td>{{ polisa.data_od }}</td>
+                <td>{{ polisa.data_do|default:"-" }}</td>
+                <td><a href="#" class="btn btn-primary" style="font-size: 12px; padding: 4px 10px;">Szczegóły</a></td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" style="text-align: center; color: var(--text-muted);">Brak polis w systemie</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
