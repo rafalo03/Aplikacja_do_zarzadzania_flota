@@ -47,13 +47,12 @@ a {
     text-decoration: none;
 }
 
-/* LAYOUT */
 .layout {
     display: flex;
     min-height: 100vh;
 }
 
-/* SIDEBAR */
+/* Sidebar */
 .sidebar {
     width: 240px;
     background: var(--sidebar-bg);
@@ -146,7 +145,6 @@ a {
     font-size: 13px;
 }
 
-/* PODMENU */
 .nav-subgroup-header {
     padding: 10px 20px 10px 35px;
     color: var(--sidebar-text);
@@ -222,7 +220,6 @@ a {
     flex: 1;
 }
 
-/* Karty */
 .card {
     background: var(--card-bg);
     border: 1px solid var(--border);
@@ -299,7 +296,6 @@ a {
     background: var(--bg);
 }
 
-/* Tytuł strony */
 .page-title {
     font-size: 22px;
     font-weight: 700;

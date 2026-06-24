@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'pojazdy',
     'kontrahenci',
     'wynajmy',
+    'administracja'
 ]
 
 MIDDLEWARE = [

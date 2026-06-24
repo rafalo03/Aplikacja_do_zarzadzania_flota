@@ -28,8 +28,9 @@
             <div class="nav-subgroup-header" onclick="toggleSubMenu(this)">Dane <span class="arrow">▶</span>
             </div>
             <div class="nav-subgroup-items">
-                <a href="#">Marki i modele</a>
-                <a href="#">Klasy pojazdów</a>
+                <a href="/marki/" hx-get="/marki/" hx-target="#main-content" hx-push-url="true">Marki</a>
+                <a href="/modele/" hx-get="/modele/" hx-target="#main-content" hx-push-url="true">Modele</a>
+                <a href="/klasy/" hx-get="/klasy/" hx-target="#main-content" hx-push-url="true">Klasy pojazdów</a>
                 <a href="#">Konfiguracje</a>
             </div>
         </div>

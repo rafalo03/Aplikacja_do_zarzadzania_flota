@@ -1,5 +1,5 @@
 from django import forms
-from .models import Pojazd, Konfiguracja, Marka, ModelPojazdu, Polisa
+from .models import Pojazd, Konfiguracja, Marka, ModelPojazdu, Polisa, KlasaPojazdu
 
 class PojazdForm(forms.ModelForm):
     class Meta:
@@ -48,3 +48,18 @@ class PolisaForm(forms.ModelForm):
             'data_od': forms.DateInput(attrs={'type': 'date'}),
             'data_do': forms.DateInput(attrs={'type': 'date'}),
         }
+
+class MarkaForm(forms.ModelForm):
+    class Meta:
+        model = Marka
+        fields = ['nazwa']
+
+class ModelPojazduForm(forms.ModelForm):
+    class Meta:
+        model = ModelPojazdu
+        fields = ['marka', 'nazwa']
+
+class KlasaPojazduForm(forms.ModelForm):
+    class Meta:
+        model = KlasaPojazdu
+        fields = ['nazwa']

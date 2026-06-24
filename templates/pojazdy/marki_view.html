@@ -1,0 +1,29 @@
+<h1 class="page-title">Marki</h1>
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3>Wszystkie marki ({{ marki.count }})</h3>
+        <a href="{% url 'dodaj_marke' %}" class="btn btn-primary">+ Dodaj markę</a>
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nazwa</th>
+                <th>Liczba modeli</th>
+                <th>Akcje</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for marka in marki %}
+            <tr>
+                <td>{{ marka.nazwa }}</td>
+                <td>{{ marka.modele.count }}</td>
+                <td><a href="#" class="btn btn-primary" style="font-size: 12px; padding: 4px 10px;">Edytuj</a></td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3" style="text-align: center; color: var(--text-muted);">Brak marek</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
