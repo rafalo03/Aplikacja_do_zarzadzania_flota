@@ -18,4 +18,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', dashboard, name='dashboard'),
     path('', include('pojazdy.urls')),
+    path('', include('administracja.urls')),
 ]
