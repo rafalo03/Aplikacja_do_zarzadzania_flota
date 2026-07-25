@@ -52,3 +52,31 @@ document.addEventListener('change', function(e) {
     }
 });
 
+function toggleUserMenu() {
+    const dropdown = document.getElementById('user-dropdown');
+    dropdown.classList.toggle('open');
+}
+
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.user-menu')) {
+        document.getElementById('user-dropdown')?.classList.remove('open');
+    }
+});
+
+function toggleAll(source) {
+    const table = source.closest('table');
+    table.querySelectorAll('tbody input[type="checkbox"]').forEach(cb => cb.checked = source.checked);
+}
+
+function filterTable(input, colIndex) {
+    const filter = input.value.toLowerCase();
+    const table = input.closest('table');
+    const rows = table.querySelectorAll('tbody tr');
+    rows.forEach(row => {
+        const cell = row.cells[colIndex];
+        if (cell) {
+            row.style.display = cell.textContent.toLowerCase().includes(filter) ? '' : 'none';
+        }
+    });
+}
+

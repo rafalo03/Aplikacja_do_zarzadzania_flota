@@ -1,0 +1,39 @@
+<h1 class="page-title">Szkody blacharskie</h1>
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3>Wszystkie szkody ({{ szkody.count }})</h3>
+        <a href="{% url 'dodaj_szkode' %}" class="btn btn-primary">+ Dodaj szkodę</a>
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Pojazd</th>
+                <th>Data zdarzenia</th>
+                <th>Numer szkody</th>
+                <th>Płatnik</th>
+                <th>Warsztat</th>
+                <th>Status</th>
+                <th>Koszt netto</th>
+                <th>Akcje</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for szkoda in szkody %}
+            <tr>
+                <td>{{ szkoda.pojazd }}</td>
+                <td>{{ szkoda.data_zdarzenia|default:"-" }}</td>
+                <td>{{ szkoda.numer_szkody|default:"-" }}</td>
+                <td>{{ szkoda.get_platnik_display }}</td>
+                <td>{{ szkoda.warsztat|default:"-" }}</td>
+                <td>{{ szkoda.get_status_display }}</td>
+                <td>{{ szkoda.rzeczywisty_koszt_netto|default:szkoda.planowany_koszt_netto|default:"-" }}</td>
+                <td><a href="#" class="btn btn-primary" style="font-size: 12px; padding: 4px 10px;">Szczegóły</a></td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8" style="text-align: center; color: var(--text-muted);">Brak szkód</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

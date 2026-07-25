@@ -114,6 +114,8 @@ class Pojazd(models.Model):
     id_pojazdu = models.CharField(max_length=20, unique=True, editable=False, blank=True)
     konfiguracja = models.ForeignKey(Konfiguracja, on_delete=models.PROTECT, related_name='pojazdy')
     numer_rejestracyjny = models.CharField(max_length=20, unique=True)
+    lata_gwarancji = models.IntegerField(null=True, blank=True, verbose_name='Gwarancja (lata)')
+    data_pierwszej_rejestracji = models.DateField(null=True, blank=True)
     rok_produkcji = models.IntegerField()
     data_zakupu = models.DateField()
     przebieg_km = models.IntegerField(default=0)
@@ -126,6 +128,7 @@ class Pojazd(models.Model):
     wspolwlasciciel = models.ForeignKey(Kontrahent, on_delete=models.SET_NULL, null=True, blank=True, related_name='pojazdy_wspolwlasne')
     data_przegladu = models.DateField(null=True, blank=True)
     data_ubezpieczenia = models.DateField(null=True, blank=True)
+    
 
     def save(self, *args, **kwargs):
         if not self.id_pojazdu:

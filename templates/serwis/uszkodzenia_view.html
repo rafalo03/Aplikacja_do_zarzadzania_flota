@@ -1,0 +1,31 @@
+<h1 class="page-title">Uszkodzenia</h1>
+<div class="card">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Pojazd</th>
+                <th>Data wykrycia</th>
+                <th>Opis</th>
+                <th>Zgłaszający</th>
+                <th>Naprawione</th>
+                <th>Koszt</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for u in uszkodzenia %}
+            <tr>
+                <td>{{ u.pojazd }}</td>
+                <td>{{ u.data_wykrycia }}</td>
+                <td>{{ u.opis }}</td>
+                <td>{{ u.zglaszajacy|default:"-" }}</td>
+                <td>{% if u.naprawione %}{% else %}{% endif %}</td>
+                <td>{{ u.koszt_naprawy|default:"-" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" style="text-align: center; color: var(--text-muted);">Brak uszkodzeń</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

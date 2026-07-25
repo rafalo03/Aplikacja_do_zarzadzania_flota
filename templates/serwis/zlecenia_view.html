@@ -1,0 +1,39 @@
+<h1 class="page-title">Zlecenia serwisowe</h1>
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3>Wszystkie zlecenia ({{ zlecenia.count }})</h3>
+        <a href="{% url 'dodaj_zlecenie' %}" class="btn btn-primary">+ Dodaj zlecenie</a>
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Pojazd</th>
+                <th>Typ</th>
+                <th>Warsztat</th>
+                <th>Data przyjęcia</th>
+                <th>Planowane zakończenie</th>
+                <th>Status</th>
+                <th>Koszt netto</th>
+                <th>Akcje</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for zlecenie in zlecenia %}
+            <tr>
+                <td>{{ zlecenie.pojazd }}</td>
+                <td>{{ zlecenie.get_typ_display }}</td>
+                <td>{{ zlecenie.warsztat|default:"-" }}</td>
+                <td>{{ zlecenie.data_przyjecia }}</td>
+                <td>{{ zlecenie.planowana_data_zakonczenia|default:"-" }}</td>
+                <td>{{ zlecenie.get_status_display }}</td>
+                <td>{{ zlecenie.rzeczywisty_koszt_netto|default:zlecenie.planowany_koszt_netto|default:"-" }}</td>
+                <td><a href="#" class="btn btn-primary" style="font-size: 12px; padding: 4px 10px;">Szczegóły</a></td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8" style="text-align: center; color: var(--text-muted);">Brak zleceń</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
