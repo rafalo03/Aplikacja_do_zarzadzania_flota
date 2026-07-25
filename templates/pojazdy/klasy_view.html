@@ -4,7 +4,7 @@
         <h3>Wszystkie klasy ({{ klasy.count }})</h3>
         <a href="{% url 'dodaj_klase' %}" class="btn btn-primary">+ Dodaj klasę</a>
     </div>
-    <table class="table">
+    <table class="table" id="tabela-klasy">
         <thead>
             <tr>
                 <th>Nazwa</th>
@@ -27,3 +27,4 @@
         </tbody>
     </table>
 </div>
+<script>initTabela({ tableId: 'tabela-klasy', tabela: 'klasy' });</script>

@@ -1,57 +1,40 @@
 <h1 class="page-title">Lista pojazdów</h1>
 <div class="card">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-        <h3>Pojazdy (<span id="count">{{ pojazdy.count }}</span>)</h3>
-        <div style="display: flex; gap: 8px;">
-            <button type="button" class="btn btn-secondary" onclick="toggleKolumny()">Kolumny</button>
-            <a href="{% url 'dodaj_pojazd' %}" class="btn btn-primary">+ Dodaj pojazd</a>
-        </div>
+        <h3>Pojazdy ({{ pojazdy.count }})</h3>
+        <a href="{% url 'dodaj_pojazd' %}" class="btn btn-primary">+ Dodaj pojazd</a>
     </div>
-
-    <div class="table-wrapper">
-        <table class="table" id="tabela-pojazdow">
-            <thead>
-                <tr>
-                    <th style="width: 40px;"><input type="checkbox" onclick="toggleAll(this)"></th>
-                    <th><div class="th-filter"><span>Marka / Model</span><input type="text" placeholder="Filtruj..." oninput="filterTable(this, 1)"></div></th>
-                    <th><div class="th-filter"><span>Nr rejestracyjny</span><input type="text" placeholder="Filtruj..." oninput="filterTable(this, 2)"></div></th>
-                    <th><div class="th-filter"><span>Rok</span><input type="text" placeholder="Filtruj..." oninput="filterTable(this, 3)"></div></th>
-                    <th><div class="th-filter"><span>Przebieg</span><input type="text" placeholder="Filtruj..." oninput="filterTable(this, 4)"></div></th>
-                    <th><div class="th-filter"><span>Status</span><input type="text" placeholder="Filtruj..." oninput="filterTable(this, 5)"></div></th>
-                    <th><div class="th-filter"><span>Stan</span><input type="text" placeholder="Filtruj..." oninput="filterTable(this, 6)"></div></th>
-                    <th>Akcje</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for pojazd in pojazdy %}
-                <tr>
-                    <td><input type="checkbox"></td>
-                    <td>{{ pojazd.konfiguracja.model.marka }} {{ pojazd.konfiguracja.model.nazwa }} {{ pojazd.konfiguracja.wersja_wyposazenia }}</td>
-                    <td>{{ pojazd.numer_rejestracyjny }}</td>
-                    <td>{{ pojazd.rok_produkcji }}</td>
-                    <td>{{ pojazd.przebieg_km }} km</td>
-                    <td>{{ pojazd.get_status_display }}</td>
-                    <td>{{ pojazd.get_stan_display }}</td>
-                    <td><a href="#" class="btn btn-primary" style="font-size: 11px; padding: 3px 8px;">Szczegóły</a></td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="8" style="text-align: center; color: var(--text-muted);">Brak pojazdów</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-
-    <div class="pagination">
-        <span>{{ pojazdy.count }} rekordów</span>
-        <div class="pagination-controls">
-            <span>Rekordów na stronę:</span>
-            <select class="per-page-select">
-                <option>10</option>
-                <option>25</option>
-                <option>50</option>
-            </select>
-        </div>
-    </div>
+    <table class="table" id="tabela-pojazdow">
+        <thead>
+            <tr>
+                <th style="width: 40px;"><input type="checkbox" onclick="toggleAll(this)"></th>
+                <th>Marka / Model</th>
+                <th>Nr rejestracyjny</th>
+                <th>Rok</th>
+                <th>Przebieg</th>
+                <th>Status</th>
+                <th>Stan</th>
+                <th>Akcje</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for pojazd in pojazdy %}
+            <tr>
+                <td><input type="checkbox"></td>
+                <td>{{ pojazd.konfiguracja.model.marka }} {{ pojazd.konfiguracja.model.nazwa }} {{ pojazd.konfiguracja.wersja_wyposazenia }}</td>
+                <td>{{ pojazd.numer_rejestracyjny }}</td>
+                <td>{{ pojazd.rok_produkcji }}</td>
+                <td>{{ pojazd.przebieg_km }} km</td>
+                <td>{{ pojazd.get_status_display }}</td>
+                <td>{{ pojazd.get_stan_display }}</td>
+                <td><a href="#" class="btn btn-primary" style="font-size: 11px; padding: 3px 8px;">Szczegóły</a></td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8" style="text-align: center; color: var(--text-muted);">Brak pojazdów</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
+<script>initTabela({ tableId: 'tabela-pojazdow', tabela: 'pojazdy' });</script>

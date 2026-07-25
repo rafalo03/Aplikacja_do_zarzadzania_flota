@@ -4,7 +4,7 @@
         <h3>Wszystkie modele ({{ modele.count }})</h3>
         <a href="{% url 'dodaj_model' %}" class="btn btn-primary">+ Dodaj model</a>
     </div>
-    <table class="table">
+    <table class="table" id="tabela-modele">
         <thead>
             <tr>
                 <th>Marka</th>
@@ -27,3 +27,4 @@
         </tbody>
     </table>
 </div>
+<script>initTabela({ tableId: 'tabela-modele', tabela: 'modele' });</script>

@@ -4,7 +4,7 @@
         <h3>Wszystkie szkody ({{ szkody.count }})</h3>
         <a href="{% url 'dodaj_szkode' %}" class="btn btn-primary">+ Dodaj szkodę</a>
     </div>
-    <table class="table">
+    <table class="table" id="tabela-szkody">
         <thead>
             <tr>
                 <th>Pojazd</th>
@@ -37,3 +37,4 @@
         </tbody>
     </table>
 </div>
+<script>initTabela({ tableId: 'tabela-szkody', tabela: 'szkody' });</script>

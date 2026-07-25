@@ -4,7 +4,7 @@
         <h3>Wszystkie polisy ({{ polisy.count }})</h3>
         <a href="{% url 'dodaj_polise' %}" class="btn btn-primary">+ Dodaj polisę</a>
     </div>
-    <table class="table">
+    <table class="table" id="tabela-polisy">
         <thead>
             <tr>
                 <th>Pojazd</th>
@@ -35,3 +35,4 @@
         </tbody>
     </table>
 </div>
+<script>initTabela({ tableId: 'tabela-polisy', tabela: 'polisy' });</script>

@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="{% static 'js/tabela.js' %}"></script>
 </head>
 <body>
     <header class="topbar">
@@ -25,7 +26,10 @@
                 </div>
                 <div class="user-dropdown-divider"></div>
                 <a href="#">Ustawienia</a>
-                <a href="/admin/logout/" class="logout">Wyloguj się</a>
+                <form method="post" action="{% url 'logout' %}" style="margin: 0;">
+                    {% csrf_token %}
+                    <button type="submit" class="logout-btn">Wyloguj się</button>
+                </form>
             </div>
         </div>
     </div>

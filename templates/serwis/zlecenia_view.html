@@ -4,7 +4,7 @@
         <h3>Wszystkie zlecenia ({{ zlecenia.count }})</h3>
         <a href="{% url 'dodaj_zlecenie' %}" class="btn btn-primary">+ Dodaj zlecenie</a>
     </div>
-    <table class="table">
+    <table class="table" id="tabela-zlecenia">
         <thead>
             <tr>
                 <th>Pojazd</th>
@@ -37,3 +37,4 @@
         </tbody>
     </table>
 </div>
+<script>initTabela({ tableId: 'tabela-zlecenia', tabela: 'zlecenia' });</script>

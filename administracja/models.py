@@ -11,3 +11,18 @@ class ProfilUzytkownika(models.Model):
     class Meta:
         verbose_name = 'Profil użytkownika'
         verbose_name_plural = 'Profile użytkowników'
+
+class UkladTabeli(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='uklady_tabel')
+    tabela = models.CharField(max_length=50)
+    nazwa = models.CharField(max_length=100)
+    dane = models.JSONField()
+    aktywny = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.user.username} – {self.tabela} – {self.nazwa}"
+
+    class Meta:
+        unique_together = ('user', 'tabela', 'nazwa')
+        verbose_name = 'Układ tabeli'
+        verbose_name_plural = 'Układy tabel'

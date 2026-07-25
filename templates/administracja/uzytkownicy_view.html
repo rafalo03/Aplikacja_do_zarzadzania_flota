@@ -4,7 +4,7 @@
         <h3>Wszyscy użytkownicy ({{ uzytkownicy.count }})</h3>
         <a href="{% url 'dodaj_uzytkownika' %}" class="btn btn-primary">+ Dodaj użytkownika</a>
     </div>
-    <table class="table">
+    <table class="table" id="tabela-uzytkownicy">
         <thead>
             <tr>
                 <th>Login</th>
@@ -33,3 +33,4 @@
         </tbody>
     </table>
 </div>
+<script>initTabela({ tableId: 'tabela-uzytkownicy', tabela: 'uzytkownicy' });</script>
