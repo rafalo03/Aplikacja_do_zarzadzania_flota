@@ -14,10 +14,10 @@
         </thead>
         <tbody>
             {% for model in modele %}
-            <tr>
+            <tr data-id="{{ model.id }}">
                 <td>{{ model.marka }}</td>
                 <td>{{ model.nazwa }}</td>
-                <td><a href="#" class="btn btn-primary" style="font-size: 12px; padding: 4px 10px;">Edytuj</a></td>
+                <td><a href="{% url 'edytuj_model' model.id %}" class="btn btn-primary" style="font-size: 12px; padding: 4px 10px;">Edytuj</a></td>
             </tr>
             {% empty %}
             <tr>
@@ -27,4 +27,7 @@
         </tbody>
     </table>
 </div>
-<script>initTabela({ tableId: 'tabela-modele', tabela: 'modele' });</script>
+<script>initTabela({ tableId: 'tabela-modele', tabela: 'modele', akcje: [
+    { label: 'Szczegóły', url: '/modele/{id}/' },
+    { label: 'Edytuj', url: '/modele/{id}/edytuj/' }
+] });</script>

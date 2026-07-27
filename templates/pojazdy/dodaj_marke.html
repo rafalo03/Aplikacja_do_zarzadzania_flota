@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
-{% block title %}Dodaj markę{% endblock %}
+{% block title %}{{ tytul|default:"Dodaj markę" }}{% endblock %}
 {% block content %}
-<h1 class="page-title">Dodaj markę</h1>
+<h1 class="page-title">{{ tytul|default:"Dodaj markę" }}</h1>
 <div class="card">
     <form method="post">
         {% csrf_token %}
@@ -15,7 +15,7 @@
             {% endfor %}
         </div>
         <div style="margin-top: 20px; display: flex; gap: 12px;">
-            <button type="submit" class="btn btn-primary">Zapisz</button>
+            <button type="submit" class="btn btn-primary">{{ przycisk|default:"Zapisz" }}</button>
             <a href="{% url 'marki' %}" class="btn btn-secondary">Anuluj</a>
         </div>
     </form>

@@ -331,6 +331,37 @@ a {
     transition: background 0.3s;
 }
 
+/* Efekt 3D dla kart z tabelami — karta "wychodzi" z ekranu */
+@keyframes karta-wjazd {
+    from { opacity: 0; transform: translateY(16px) scale(0.985); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.karta-3d {
+    box-shadow:
+        0 1px 2px rgba(15, 23, 42, 0.05),
+        0 6px 14px rgba(15, 23, 42, 0.07),
+        0 16px 32px rgba(15, 23, 42, 0.09),
+        0 32px 64px rgba(15, 23, 42, 0.09);
+    border-top: 1px solid rgba(255, 255, 255, 0.65);
+    animation: karta-wjazd 0.3s ease-out;
+}
+
+[data-theme="dark"] .karta-3d {
+    border-top: 1px solid rgba(255, 255, 255, 0.10);
+    box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.35),
+        0 6px 14px rgba(0, 0, 0, 0.35),
+        0 16px 32px rgba(0, 0, 0, 0.40),
+        0 32px 64px rgba(0, 0, 0, 0.40);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .karta-3d {
+        animation: none;
+    }
+}
+
 /* Przyciski */
 .btn {
     padding: 8px 16px;
@@ -946,4 +977,279 @@ a {
 body.col-resizing {
     cursor: col-resize;
     user-select: none;
+}
+/* Panel akcji po prawej stronie karty */
+.karta-akcje-uklad {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.karta-akcje-uklad > .card {
+    flex: 1;
+    min-width: 0;
+}
+
+.akcje-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 170px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 16px;
+}
+
+.akcja-btn {
+    padding: 10px 12px;
+    border: none;
+    border-radius: 4px;
+    background: #57707e;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: 'Montserrat', sans-serif;
+    cursor: pointer;
+    text-align: center;
+    transition: background 0.2s;
+}
+
+.akcja-btn:hover:not(:disabled) {
+    background: #46606e;
+}
+
+.akcja-btn:disabled {
+    background: var(--border);
+    color: var(--text-muted);
+    cursor: not-allowed;
+}
+
+[data-theme="dark"] .akcja-btn {
+    background: #3e5460;
+}
+
+[data-theme="dark"] .akcja-btn:hover:not(:disabled) {
+    background: #4d6d75;
+}
+
+[data-theme="dark"] .akcja-btn:disabled {
+    background: var(--border);
+    color: var(--text-muted);
+}
+
+.table tbody tr.wiersz-zaznaczony td {
+    background: rgba(59, 130, 246, 0.16);
+}
+
+/* Siatka szczegolow (strona szczegolow pojazdu) */
+.szczegoly-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px 24px;
+    font-size: 13px;
+    color: var(--text);
+}
+
+.szczegoly-grid > div > span {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--text-muted);
+    margin-bottom: 3px;
+}
+
+/* Formularz pojazdu — kafelki */
+.form-kafelki {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 960px;
+}
+
+.kafelek {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.kafelek-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+}
+
+.kafelek-header h3 {
+    font-size: 15px;
+    color: var(--text);
+}
+
+.kafelek-header p {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.kafelek-pola {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+.kafelek-pola .form-group.pelna {
+    grid-column: 1 / -1;
+}
+
+.wymagane {
+    color: #ef4444;
+}
+
+/* Wybor statusu / stanu jako klikane kafelki */
+.radio-kafelki {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.radio-kafelek input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.radio-kafelek span {
+    display: inline-block;
+    padding: 8px 14px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    color: var(--text);
+    background: var(--bg);
+    transition: all 0.15s;
+    user-select: none;
+}
+
+.radio-kafelek:hover span {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.radio-kafelek input:checked + span {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #ffffff;
+}
+
+.radio-kafelek input:focus-visible + span {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+.form-akcje {
+    margin-top: 20px;
+    display: flex;
+    gap: 12px;
+}
+
+.form-grid .form-group.pelna {
+    grid-column: 1 / -1;
+}
+
+/* Wybor konfiguracji w formularzu pojazdu */
+.konfig-wybor {
+    display: flex;
+    gap: 8px;
+}
+
+.konfig-wybor input {
+    flex: 1;
+    cursor: pointer;
+}
+
+/* Modal */
+.modal-tlo {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 500;
+}
+
+.modal-okno {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    width: min(920px, 92vw);
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+}
+
+.modal-naglowek {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+.modal-naglowek h3 {
+    font-size: 15px;
+    color: var(--text);
+}
+
+.modal-zamknij {
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 4px;
+}
+
+.modal-zamknij:hover {
+    color: var(--text);
+}
+
+.modal-tresc {
+    overflow: auto;
+    padding: 0 20px 20px;
+}
+
+.konfig-filtry th {
+    padding: 6px 8px;
+}
+
+.konfig-filtry input {
+    width: 100%;
+    padding: 4px 8px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--card-bg);
+    color: var(--text);
+    font-size: 12px;
+}
+
+.konfig-filtry input:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+#konfig-tabela tbody tr[data-id] {
+    cursor: pointer;
+}
+
+#konfig-tabela tbody tr[data-id]:hover td {
+    background: rgba(59, 130, 246, 0.12);
 }

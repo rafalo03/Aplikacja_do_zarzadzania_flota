@@ -1,0 +1,23 @@
+<h1 class="page-title">{{ tytul }}</h1>
+{% for sekcja in sekcje %}
+<div class="card" style="margin-bottom: 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3>{{ sekcja.naglowek }}</h3>
+        {% if forloop.first %}
+        <div style="display: flex; gap: 12px;">
+            {% if edytuj_url %}<a href="{{ edytuj_url }}" class="btn btn-primary">Edytuj</a>{% endif %}
+            {% if powrot_url %}<a href="{{ powrot_url }}" class="btn btn-secondary">&larr; Wróć do listy</a>{% endif %}
+        </div>
+        {% endif %}
+    </div>
+    <div class="szczegoly-grid">
+        {% for pole in sekcja.pola %}
+        <div>
+            <span>{{ pole.0 }}</span>
+            {% if pole.2 %}<a href="{{ pole.2 }}" target="_blank">{{ pole.1 }}</a>
+            {% else %}{{ pole.1|default_if_none:"—"|default:"—" }}{% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endfor %}

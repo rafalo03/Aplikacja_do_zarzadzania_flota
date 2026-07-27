@@ -122,7 +122,7 @@ class Pojazd(models.Model):
     vin = models.CharField(max_length=17, unique=True, null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS, default='dostepny')
     stan = models.CharField(max_length=20, choices=STAN, default='w_przygotowaniu')
-    oddzial = models.CharField(max_length=50, null=True, blank=True)
+    oddzial = models.ForeignKey('administracja.Oddzial', on_delete=models.SET_NULL, null=True, blank=True, related_name='pojazdy', verbose_name='Oddział')
     dostawca = models.ForeignKey(Kontrahent, on_delete=models.SET_NULL, null=True, blank=True, related_name='pojazdy_dostarczone')
     wlasciciel = models.ForeignKey(Kontrahent, on_delete=models.SET_NULL, null=True, blank=True, related_name='pojazdy_wlasne')
     wspolwlasciciel = models.ForeignKey(Kontrahent, on_delete=models.SET_NULL, null=True, blank=True, related_name='pojazdy_wspolwlasne')

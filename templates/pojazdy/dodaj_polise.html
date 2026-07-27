@@ -1,27 +1,77 @@
 {% extends 'base.html' %}
 
-{% block title %}Dodaj polisę{% endblock %}
-{% block page_title %}Dodaj polisę{% endblock %}
+{% block title %}{{ tytul|default:"Dodaj polisę" }}{% endblock %}
+{% block page_title %}{{ tytul|default:"Dodaj polisę" }}{% endblock %}
 
 {% block content %}
-<div class="card">
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <div class="form-grid">
-            {% for field in form %}
-            <div class="form-group">
-                <label>{{ field.label }}</label>
-                {{ field }}
-                {% if field.errors %}
-                <p class="form-error">{{ field.errors }}</p>
-                {% endif %}
+<h1 class="page-title">{{ tytul|default:"Dodaj polisę" }}</h1>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+    <p class="form-error" style="margin-bottom: 16px;">{{ form.non_field_errors.0 }}</p>
+    {% endif %}
+
+    <div class="form-kafelki">
+        <section class="kafelek karta-3d">
+            <div class="kafelek-header">
+                <div>
+                    <h3>Polisa</h3>
+                    <p>Pojazd i dane umowy ubezpieczenia</p>
+                </div>
             </div>
-            {% endfor %}
-        </div>
-        <div style="margin-top: 20px; display: flex; gap: 12px;">
-            <button type="submit" class="btn btn-primary">Zapisz polisę</button>
-            <a href="{% url 'polisy' %}" class="btn btn-secondary">Anuluj</a>
-        </div>
-    </form>
-</div>
+            <div class="kafelek-pola">
+                {% include 'pojazdy/_pole.html' with field=form.pojazd pelna=True %}
+                {% include 'pojazdy/_pole.html' with field=form.numer_polisy %}
+                {% include 'pojazdy/_pole.html' with field=form.numer_umowy_generalnej %}
+                {% include 'pojazdy/_pole.html' with field=form.ubezpieczyciel %}
+            </div>
+        </section>
+
+        <section class="kafelek karta-3d">
+            <div class="kafelek-header">
+                <div>
+                    <h3>Zakres ubezpieczenia</h3>
+                    <p>Zaznacz składniki ochrony</p>
+                </div>
+            </div>
+            <div class="radio-kafelki">
+                <label class="radio-kafelek">{{ form.rodzaj_oc }}<span>OC</span></label>
+                <label class="radio-kafelek">{{ form.rodzaj_ac }}<span>AC</span></label>
+                <label class="radio-kafelek">{{ form.rodzaj_nnw }}<span>NNW</span></label>
+                <label class="radio-kafelek">{{ form.rodzaj_assistance }}<span>Assistance</span></label>
+            </div>
+        </section>
+
+        <section class="kafelek karta-3d">
+            <div class="kafelek-header">
+                <div>
+                    <h3>Okres ochrony</h3>
+                    <p>Puste „do" ustawi się automatycznie na rok od daty rozpoczęcia</p>
+                </div>
+            </div>
+            <div class="kafelek-pola">
+                {% include 'pojazdy/_pole.html' with field=form.data_od %}
+                {% include 'pojazdy/_pole.html' with field=form.data_do %}
+            </div>
+        </section>
+
+        <section class="kafelek karta-3d">
+            <div class="kafelek-header">
+                <div>
+                    <h3>Dokumenty i uwagi</h3>
+                    <p>Skan polisy i dodatkowe informacje</p>
+                </div>
+            </div>
+            <div class="kafelek-pola">
+                {% include 'pojazdy/_pole.html' with field=form.skan %}
+                {% include 'pojazdy/_pole.html' with field=form.uwagi pelna=True %}
+            </div>
+        </section>
+    </div>
+
+    <div class="form-akcje">
+        <button type="submit" class="btn btn-primary">{{ przycisk|default:"Zapisz polisę" }}</button>
+        <a href="{% url 'polisy' %}" class="btn btn-secondary">Anuluj</a>
+    </div>
+</form>
 {% endblock %}

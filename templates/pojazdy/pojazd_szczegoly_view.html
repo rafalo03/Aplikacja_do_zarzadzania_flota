@@ -1,0 +1,77 @@
+<h1 class="page-title">{{ pojazd.konfiguracja.model.marka }} {{ pojazd.konfiguracja.model.nazwa }} — {{ pojazd.numer_rejestracyjny }}</h1>
+
+<div class="card" style="margin-bottom: 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3>Dane pojazdu</h3>
+        <div style="display: flex; gap: 12px;">
+            <a href="{% url 'edytuj_pojazd' pojazd.id %}" class="btn btn-primary">Edytuj</a>
+            <a href="{% url 'pojazdy' %}" class="btn btn-secondary">&larr; Wróć do listy</a>
+        </div>
+    </div>
+    <div class="szczegoly-grid">
+        <div><span>ID pojazdu</span>{{ pojazd.id_pojazdu }}</div>
+        <div><span>Numer rejestracyjny</span>{{ pojazd.numer_rejestracyjny }}</div>
+        <div><span>VIN</span>{{ pojazd.vin|default:"—" }}</div>
+        <div><span>Rok produkcji</span>{{ pojazd.rok_produkcji }}</div>
+        <div><span>Data pierwszej rejestracji</span>{{ pojazd.data_pierwszej_rejestracji|default:"—" }}</div>
+        <div><span>Data zakupu</span>{{ pojazd.data_zakupu }}</div>
+        <div><span>Przebieg</span>{{ pojazd.przebieg_km }} km</div>
+        <div><span>Status</span>{{ pojazd.get_status_display }}</div>
+        <div><span>Stan</span>{{ pojazd.get_stan_display }}</div>
+        <div><span>Oddział</span>{{ pojazd.oddzial|default:"—" }}</div>
+        <div><span>Gwarancja</span>{% if pojazd.lata_gwarancji %}{{ pojazd.lata_gwarancji }} lat{% else %}—{% endif %}</div>
+        <div><span>Dostawca</span>{{ pojazd.dostawca|default:"—" }}</div>
+        <div><span>Właściciel</span>{{ pojazd.wlasciciel|default:"—" }}</div>
+        <div><span>Współwłaściciel</span>{{ pojazd.wspolwlasciciel|default:"—" }}</div>
+        <div><span>Data przeglądu</span>{{ pojazd.data_przegladu|default:"—" }}</div>
+        <div><span>Data ubezpieczenia</span>{{ pojazd.data_ubezpieczenia|default:"—" }}</div>
+    </div>
+</div>
+
+<div class="card" style="margin-bottom: 20px;">
+    <h3 style="margin-bottom: 16px;">Konfiguracja</h3>
+    <div class="szczegoly-grid">
+        <div><span>Model</span>{{ pojazd.konfiguracja.model }}</div>
+        <div><span>Wersja wyposażenia</span>{{ pojazd.konfiguracja.wersja_wyposazenia }}</div>
+        <div><span>Typ nadwozia</span>{{ pojazd.konfiguracja.get_typ_nadwozia_display }}</div>
+        <div><span>Klasa pojazdu</span>{{ pojazd.konfiguracja.klasa_pojazdu|default:"—" }}</div>
+        <div><span>Liczba drzwi</span>{{ pojazd.konfiguracja.liczba_drzwi }}</div>
+        <div><span>Liczba pasażerów</span>{{ pojazd.konfiguracja.maksymalna_liczba_pasazerow }}</div>
+        <div><span>Pojemność silnika</span>{{ pojazd.konfiguracja.pojemnosc_silnika }}</div>
+        <div><span>Moc</span>{{ pojazd.konfiguracja.moc_km }} KM ({{ pojazd.konfiguracja.moc_kw }} kW)</div>
+        <div><span>Rodzaj paliwa</span>{{ pojazd.konfiguracja.get_rodzaj_paliwa_display }}</div>
+        <div><span>Skrzynia biegów</span>{{ pojazd.konfiguracja.get_typ_skrzyni_display }}</div>
+        <div><span>Napęd</span>{{ pojazd.konfiguracja.get_naped_display }}</div>
+        <div><span>Spalanie</span>{% if pojazd.konfiguracja.spalanie_l100km %}{{ pojazd.konfiguracja.spalanie_l100km }} l/100km{% else %}—{% endif %}</div>
+    </div>
+</div>
+
+<div class="card">
+    <h3 style="margin-bottom: 16px;">Polisy ({{ polisy|length }})</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Numer polisy</th>
+                <th>Zakres</th>
+                <th>Ubezpieczyciel</th>
+                <th>Od</th>
+                <th>Do</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for polisa in polisy %}
+            <tr>
+                <td>{{ polisa.numer_polisy }}</td>
+                <td>{% if polisa.rodzaj_oc %}OC {% endif %}{% if polisa.rodzaj_ac %}AC {% endif %}{% if polisa.rodzaj_nnw %}NNW {% endif %}{% if polisa.rodzaj_assistance %}Assistance{% endif %}</td>
+                <td>{{ polisa.ubezpieczyciel|default:"—" }}</td>
+                <td>{{ polisa.data_od }}</td>
+                <td>{{ polisa.data_do }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" style="text-align: center; color: var(--text-muted);">Brak polis</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

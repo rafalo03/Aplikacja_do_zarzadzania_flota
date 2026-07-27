@@ -124,6 +124,7 @@ window.initTabela = function(opts) {
     /* ---------- pasek nad tabela + obszar z zakladkami ---------- */
 
     const card = table.closest('.card') || table.parentNode;
+    if (card.classList) card.classList.add('karta-3d');
 
     const toolbar = document.createElement('div');
     toolbar.className = 'tabela-toolbar';
@@ -199,6 +200,94 @@ window.initTabela = function(opts) {
     panel.appendChild(lista);
     obszar.appendChild(panel);
 
+    /* ---------- panel akcji po prawej stronie karty ---------- */
+
+    let zaznaczonyWiersz = null;
+    const akcjePrzyciski = [];
+    const akcjaDropdown = document.createElement('div');
+    akcjaDropdown.className = 'sort-dropdown';
+    akcjaDropdown.style.display = 'none';
+    document.body.appendChild(akcjaDropdown);
+
+    if (Array.isArray(opts.akcje) && opts.akcje.length) {
+        const uklad = document.createElement('div');
+        uklad.className = 'karta-akcje-uklad';
+        card.parentNode.insertBefore(uklad, card);
+        uklad.appendChild(card);
+        const panelAkcji = document.createElement('div');
+        panelAkcji.className = 'akcje-panel';
+        opts.akcje.forEach(function(a) {
+            const b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'akcja-btn';
+            b.textContent = a.label;
+            b.disabled = true;
+            b.addEventListener('click', function() { wykonajAkcje(a, b); });
+            panelAkcji.appendChild(b);
+            akcjePrzyciski.push(b);
+        });
+        uklad.appendChild(panelAkcji);
+
+        table.querySelector('tbody').addEventListener('click', function(e) {
+            if (e.target.closest('a, button, input, select, label')) return;
+            const tr = e.target.closest('tr');
+            if (!tr || tr.children.length < colCount || !tr.hasAttribute('data-id')) return;
+            if (zaznaczonyWiersz === tr) {
+                tr.classList.remove('wiersz-zaznaczony');
+                zaznaczonyWiersz = null;
+            } else {
+                if (zaznaczonyWiersz) zaznaczonyWiersz.classList.remove('wiersz-zaznaczony');
+                tr.classList.add('wiersz-zaznaczony');
+                zaznaczonyWiersz = tr;
+            }
+            odswiezAkcje();
+        });
+    }
+
+    function idZaznaczonego() {
+        return zaznaczonyWiersz ? zaznaczonyWiersz.getAttribute('data-id') : null;
+    }
+
+    function odswiezAkcje() {
+        const jest = !!idZaznaczonego();
+        akcjePrzyciski.forEach(b => b.disabled = !jest);
+    }
+
+    function wykonajAkcje(a, btn) {
+        const id = idZaznaczonego();
+        if (!id) return;
+        if (a.menu) { openAkcjaMenu(btn, a, id); return; }
+        if (a.post) {
+            apiPost(a.post.replace('{id}', id), a.dane || {}).then(function(res) {
+                if (res && res.ok) location.reload();
+            });
+            return;
+        }
+        if (a.url) window.location.href = a.url.replace('{id}', id);
+    }
+
+    function openAkcjaMenu(btn, a, id) {
+        if (akcjaDropdown.style.display !== 'none') {
+            akcjaDropdown.style.display = 'none';
+            return;
+        }
+        akcjaDropdown.innerHTML = '';
+        a.menu.forEach(function(m) {
+            const b = document.createElement('button');
+            b.textContent = m[1];
+            b.addEventListener('click', function() {
+                akcjaDropdown.style.display = 'none';
+                const dane = {};
+                dane[a.pole || 'stan'] = m[0];
+                apiPost(a.post.replace('{id}', id), dane).then(function(res) {
+                    if (res && res.ok) location.reload();
+                });
+            });
+            akcjaDropdown.appendChild(b);
+        });
+        positionDropdown(akcjaDropdown, btn);
+    }
+
     /* ---------- paginacja + przyciski stopki ---------- */
 
     const pagination = document.createElement('div');
@@ -269,7 +358,7 @@ window.initTabela = function(opts) {
         b.addEventListener('click', function() { sortTable(item[0]); });
         sortDropdown.appendChild(b);
     });
-    card.appendChild(sortDropdown);
+    document.body.appendChild(sortDropdown);
 
     const filterDropdown = document.createElement('div');
     filterDropdown.className = 'sort-dropdown';
@@ -286,7 +375,7 @@ window.initTabela = function(opts) {
         b.addEventListener('click', function() { setFilterMode(item[0]); });
         filterDropdown.appendChild(b);
     });
-    card.appendChild(filterDropdown);
+    document.body.appendChild(filterDropdown);
 
     const configDropdown = document.createElement('div');
     configDropdown.className = 'sort-dropdown config-dropdown';
@@ -315,7 +404,7 @@ window.initTabela = function(opts) {
     resetBtn.textContent = 'Resetuj do domyślnego';
     resetBtn.addEventListener('click', resetujUklad);
     configDropdown.appendChild(resetBtn);
-    card.appendChild(configDropdown);
+    document.body.appendChild(configDropdown);
 
     function positionDropdown(dropdown, anchor) {
         const rect = anchor.getBoundingClientRect();
@@ -795,8 +884,15 @@ window.initTabela = function(opts) {
 
     function onDocClick(e) {
         if (!document.body.contains(table)) {
+            sortDropdown.remove();
+            filterDropdown.remove();
+            configDropdown.remove();
+            akcjaDropdown.remove();
             document.removeEventListener('click', onDocClick);
             return;
+        }
+        if (!akcjaDropdown.contains(e.target) && !e.target.closest('.akcja-btn')) {
+            akcjaDropdown.style.display = 'none';
         }
         if (!sortDropdown.contains(e.target) && !e.target.closest('.th-name')) {
             sortDropdown.style.display = 'none';

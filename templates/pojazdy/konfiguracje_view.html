@@ -1,0 +1,47 @@
+<h1 class="page-title">Konfiguracje</h1>
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3>Konfiguracje ({{ konfiguracje.count }})</h3>
+        <a href="{% url 'dodaj_konfiguracje' %}" class="btn btn-primary">+ Dodaj konfigurację</a>
+    </div>
+    <table class="table" id="tabela-konfiguracje">
+        <thead>
+            <tr>
+                <th>Marka</th>
+                <th>Model</th>
+                <th>Wersja</th>
+                <th>Nadwozie</th>
+                <th>Klasa</th>
+                <th>Paliwo</th>
+                <th>Moc</th>
+                <th>Skrzynia</th>
+                <th>Napęd</th>
+                <th>Akcje</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for k in konfiguracje %}
+            <tr data-id="{{ k.id }}">
+                <td>{{ k.model.marka.nazwa }}</td>
+                <td>{{ k.model.nazwa }}</td>
+                <td>{{ k.wersja_wyposazenia }}</td>
+                <td>{{ k.get_typ_nadwozia_display }}</td>
+                <td>{{ k.klasa_pojazdu|default:"—" }}</td>
+                <td>{{ k.get_rodzaj_paliwa_display }}</td>
+                <td>{{ k.moc_km }} KM</td>
+                <td>{{ k.get_typ_skrzyni_display }}</td>
+                <td>{{ k.get_naped_display }}</td>
+                <td><a href="{% url 'edytuj_konfiguracje' k.id %}" class="btn btn-primary" style="font-size: 12px; padding: 4px 10px;">Edytuj</a></td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="10" style="text-align: center; color: var(--text-muted);">Brak konfiguracji</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<script>initTabela({ tableId: 'tabela-konfiguracje', tabela: 'konfiguracje', akcje: [
+    { label: 'Szczegóły', url: '/konfiguracje/{id}/' },
+    { label: 'Edytuj', url: '/konfiguracje/{id}/edytuj/' }
+] });</script>

@@ -1,0 +1,63 @@
+<form method="post">
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+    <p class="form-error" style="margin-bottom: 16px;">{{ form.non_field_errors.0 }}</p>
+    {% endif %}
+
+    <div class="form-kafelki">
+        <section class="kafelek karta-3d">
+            <div class="kafelek-header">
+                <div>
+                    <h3>Model i nadwozie</h3>
+                    <p>Podstawowe dane konfiguracji</p>
+                </div>
+            </div>
+            <div class="kafelek-pola">
+                {% include 'pojazdy/_pole.html' with field=form.model %}
+                {% include 'pojazdy/_pole.html' with field=form.wersja_wyposazenia %}
+                {% include 'pojazdy/_pole.html' with field=form.typ_nadwozia %}
+                {% include 'pojazdy/_pole.html' with field=form.klasa_pojazdu %}
+                {% include 'pojazdy/_pole.html' with field=form.liczba_drzwi %}
+                {% include 'pojazdy/_pole.html' with field=form.maksymalna_liczba_pasazerow %}
+            </div>
+        </section>
+
+        <section class="kafelek karta-3d">
+            <div class="kafelek-header">
+                <div>
+                    <h3>Silnik i napęd</h3>
+                    <p>Jednostka napędowa i przeniesienie napędu</p>
+                </div>
+            </div>
+            <div class="kafelek-pola">
+                {% include 'pojazdy/_pole.html' with field=form.pojemnosc_silnika %}
+                {% include 'pojazdy/_pole.html' with field=form.rodzaj_paliwa %}
+                {% include 'pojazdy/_pole.html' with field=form.moc_km %}
+                {% include 'pojazdy/_pole.html' with field=form.moc_kw %}
+                {% include 'pojazdy/_pole.html' with field=form.typ_skrzyni %}
+                {% include 'pojazdy/_pole.html' with field=form.naped %}
+            </div>
+        </section>
+
+        <section class="kafelek karta-3d">
+            <div class="kafelek-header">
+                <div>
+                    <h3>Zużycie i serwis</h3>
+                    <p>Spalanie, emisja i interwały przeglądów</p>
+                </div>
+            </div>
+            <div class="kafelek-pola">
+                {% include 'pojazdy/_pole.html' with field=form.pojemnosc_baku %}
+                {% include 'pojazdy/_pole.html' with field=form.spalanie_l100km %}
+                {% include 'pojazdy/_pole.html' with field=form.co2_gkm %}
+                {% include 'pojazdy/_pole.html' with field=form.interwał_przeglądu_km %}
+                {% include 'pojazdy/_pole.html' with field=form.interwał_przeglądu_miesięcy %}
+            </div>
+        </section>
+    </div>
+
+    <div class="form-akcje">
+        <button type="submit" class="btn btn-primary">{{ przycisk|default:"Zapisz konfigurację" }}</button>
+        <a href="{% url 'konfiguracje' %}" class="btn btn-secondary">Anuluj</a>
+    </div>
+</form>

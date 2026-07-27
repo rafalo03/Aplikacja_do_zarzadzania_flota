@@ -1,4 +1,4 @@
-<h1 class="page-title">Lista pojazdów</h1>
+<h1 class="page-title">Polisy</h1>
 <div class="card">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <h3>Wszystkie polisy ({{ polisy.count }})</h3>
@@ -8,7 +8,7 @@
         <thead>
             <tr>
                 <th>Pojazd</th>
-                <th>Rodzaj</th>
+                <th>Zakres</th>
                 <th>Numer polisy</th>
                 <th>Ubezpieczyciel</th>
                 <th>Data od</th>
@@ -18,14 +18,14 @@
         </thead>
         <tbody>
             {% for polisa in polisy %}
-            <tr>
+            <tr data-id="{{ polisa.id }}">
                 <td>{{ polisa.pojazd }}</td>
-                <td>{{ polisa.get_rodzaj_display }}</td>
+                <td>{% if polisa.rodzaj_oc %}OC {% endif %}{% if polisa.rodzaj_ac %}AC {% endif %}{% if polisa.rodzaj_nnw %}NNW {% endif %}{% if polisa.rodzaj_assistance %}Assistance{% endif %}</td>
                 <td>{{ polisa.numer_polisy }}</td>
                 <td>{{ polisa.ubezpieczyciel|default:"-" }}</td>
                 <td>{{ polisa.data_od }}</td>
                 <td>{{ polisa.data_do|default:"-" }}</td>
-                <td><a href="#" class="btn btn-primary" style="font-size: 12px; padding: 4px 10px;">Szczegóły</a></td>
+                <td><a href="{% url 'polisa_szczegoly' polisa.id %}" class="btn btn-primary" style="font-size: 12px; padding: 4px 10px;">Szczegóły</a></td>
             </tr>
             {% empty %}
             <tr>
@@ -35,4 +35,7 @@
         </tbody>
     </table>
 </div>
-<script>initTabela({ tableId: 'tabela-polisy', tabela: 'polisy' });</script>
+<script>initTabela({ tableId: 'tabela-polisy', tabela: 'polisy', akcje: [
+    { label: 'Szczegóły', url: '/polisy/{id}/' },
+    { label: 'Edytuj', url: '/polisy/{id}/edytuj/' }
+] });</script>

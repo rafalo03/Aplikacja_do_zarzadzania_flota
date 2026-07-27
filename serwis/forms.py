@@ -1,5 +1,5 @@
 from django import forms
-from .models import ZlecenieSerwisowe, SzkodaBladcharska
+from .models import ZlecenieSerwisowe, SzkodaBladcharska, Uszkodzenie
 from kontrahenci.models import Kontrahent
 
 class ZlecenieSerwisoweForms(forms.ModelForm):
@@ -36,3 +36,7 @@ class SzkodaBlacharskaForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['warsztat'].queryset = Kontrahent.objects.filter(typ_serwis=True)
+class UszkodzenieForm(forms.ModelForm):
+    class Meta:
+        model = Uszkodzenie
+        fields = ['pojazd', 'opis', 'zdjecie', 'zglaszajacy', 'naprawione', 'koszt_naprawy']

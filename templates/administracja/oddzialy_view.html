@@ -1,0 +1,37 @@
+<h1 class="page-title">Oddziały</h1>
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3>Oddziały ({{ oddzialy.count }})</h3>
+        <a href="{% url 'dodaj_oddzial' %}" class="btn btn-primary">+ Dodaj oddział</a>
+    </div>
+    <table class="table" id="tabela-oddzialy">
+        <thead>
+            <tr>
+                <th>Nazwa</th>
+                <th>Adres</th>
+                <th>Telefon</th>
+                <th>Liczba pojazdów</th>
+                <th>Akcje</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for oddzial in oddzialy %}
+            <tr data-id="{{ oddzial.id }}">
+                <td>{{ oddzial.nazwa }}</td>
+                <td>{{ oddzial.adres|default:"—" }}</td>
+                <td>{{ oddzial.telefon|default:"—" }}</td>
+                <td>{{ oddzial.pojazdy.count }}</td>
+                <td><a href="{% url 'edytuj_oddzial' oddzial.id %}" class="btn btn-primary" style="font-size: 12px; padding: 4px 10px;">Edytuj</a></td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" style="text-align: center; color: var(--text-muted);">Brak oddziałów</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<script>initTabela({ tableId: 'tabela-oddzialy', tabela: 'oddzialy', akcje: [
+    { label: 'Szczegóły', url: '/oddzialy/{id}/' },
+    { label: 'Edytuj', url: '/oddzialy/{id}/edytuj/' }
+] });</script>

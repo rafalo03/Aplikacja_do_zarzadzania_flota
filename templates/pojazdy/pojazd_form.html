@@ -1,0 +1,198 @@
+<form method="post" class="pojazd-form">
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+    <p class="form-error" style="margin-bottom: 16px;">{{ form.non_field_errors.0 }}</p>
+    {% endif %}
+
+    <div class="form-kafelki">
+        <section class="kafelek karta-3d">
+            <div class="kafelek-header">
+                <div>
+                    <h3>Pojazd</h3>
+                    <p>Identyfikacja i dane fabryczne</p>
+                </div>
+            </div>
+            <div class="kafelek-pola">
+                <div class="form-group pelna">
+                    <label>{{ form.konfiguracja.label }} <span class="wymagane">*</span></label>
+                    <div class="konfig-wybor">
+                        <input type="text" id="konfig-display" readonly placeholder="Kliknij, aby wybrać konfigurację">
+                        <button type="button" class="btn btn-primary" id="konfig-otworz">Wybierz</button>
+                    </div>
+                    <div style="display: none;">{{ form.konfiguracja }}</div>
+                    {% if form.konfiguracja.errors %}
+                    <p class="form-error">{{ form.konfiguracja.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                {% include 'pojazdy/_pole.html' with field=form.numer_rejestracyjny %}
+                {% include 'pojazdy/_pole.html' with field=form.vin %}
+                {% include 'pojazdy/_pole.html' with field=form.rok_produkcji %}
+            </div>
+        </section>
+
+        <section class="kafelek karta-3d">
+            <div class="kafelek-header">
+                <div>
+                    <h3>Status i stan</h3>
+                    <p>Bieżąca sytuacja pojazdu we flocie</p>
+                </div>
+            </div>
+            <div class="kafelek-pola">
+                <div class="form-group pelna">
+                    <label>{{ form.status.label }}</label>
+                    <div class="radio-kafelki">
+                        {% for radio in form.status %}
+                        <label class="radio-kafelek">{{ radio.tag }}<span>{{ radio.choice_label }}</span></label>
+                        {% endfor %}
+                    </div>
+                    {% if form.status.errors %}<p class="form-error">{{ form.status.errors.0 }}</p>{% endif %}
+                </div>
+                <div class="form-group pelna">
+                    <label>{{ form.stan.label }}</label>
+                    <div class="radio-kafelki">
+                        {% for radio in form.stan %}
+                        <label class="radio-kafelek">{{ radio.tag }}<span>{{ radio.choice_label }}</span></label>
+                        {% endfor %}
+                    </div>
+                    {% if form.stan.errors %}<p class="form-error">{{ form.stan.errors.0 }}</p>{% endif %}
+                </div>
+            </div>
+        </section>
+
+        <section class="kafelek karta-3d">
+            <div class="kafelek-header">
+                <div>
+                    <h3>Zakup i własność</h3>
+                    <p>Pochodzenie pojazdu i strony umowy</p>
+                </div>
+            </div>
+            <div class="kafelek-pola">
+                {% include 'pojazdy/_pole.html' with field=form.data_zakupu %}
+                {% include 'pojazdy/_pole.html' with field=form.oddzial %}
+                {% include 'pojazdy/_pole.html' with field=form.dostawca %}
+                {% include 'pojazdy/_pole.html' with field=form.wlasciciel %}
+                {% include 'pojazdy/_pole.html' with field=form.wspolwlasciciel %}
+            </div>
+        </section>
+
+        <section class="kafelek karta-3d">
+            <div class="kafelek-header">
+                <div>
+                    <h3>Eksploatacja</h3>
+                    <p>Przebieg i terminy</p>
+                </div>
+            </div>
+            <div class="kafelek-pola">
+                {% include 'pojazdy/_pole.html' with field=form.przebieg_km %}
+                {% include 'pojazdy/_pole.html' with field=form.data_przegladu %}
+                {% include 'pojazdy/_pole.html' with field=form.data_ubezpieczenia %}
+            </div>
+        </section>
+    </div>
+
+    <div class="form-akcje">
+        <button type="submit" class="btn btn-primary">{{ przycisk|default:"Zapisz pojazd" }}</button>
+        <a href="{% url 'pojazdy' %}" class="btn btn-secondary">Anuluj</a>
+    </div>
+</form>
+
+<div class="modal-tlo" id="konfig-modal" style="display: none;">
+    <div class="modal-okno">
+        <div class="modal-naglowek">
+            <h3>Wybierz konfigurację</h3>
+            <button type="button" class="modal-zamknij" title="Zamknij">&#10005;</button>
+        </div>
+        <div class="modal-tresc">
+            <table class="table" id="konfig-tabela">
+                <thead>
+                    <tr>
+                        <th>Marka</th>
+                        <th>Model</th>
+                        <th>Wersja</th>
+                        <th>Nadwozie</th>
+                        <th>Paliwo</th>
+                        <th>Moc</th>
+                        <th>Skrzynia</th>
+                    </tr>
+                    <tr class="konfig-filtry">
+                        <th><input type="text" placeholder="Filtruj..."></th>
+                        <th><input type="text" placeholder="Filtruj..."></th>
+                        <th><input type="text" placeholder="Filtruj..."></th>
+                        <th><input type="text" placeholder="Filtruj..."></th>
+                        <th><input type="text" placeholder="Filtruj..."></th>
+                        <th><input type="text" placeholder="Filtruj..."></th>
+                        <th><input type="text" placeholder="Filtruj..."></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for k in konfiguracje %}
+                    <tr data-id="{{ k.id }}">
+                        <td>{{ k.model.marka.nazwa }}</td>
+                        <td>{{ k.model.nazwa }}</td>
+                        <td>{{ k.wersja_wyposazenia }}</td>
+                        <td>{{ k.get_typ_nadwozia_display }}</td>
+                        <td>{{ k.get_rodzaj_paliwa_display }}</td>
+                        <td>{{ k.moc_km }} KM</td>
+                        <td>{{ k.get_typ_skrzyni_display }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" style="text-align: center; color: var(--text-muted);">
+                            Brak konfiguracji — <a href="{% url 'dodaj_konfiguracje' %}">dodaj pierwszą</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    const modal = document.getElementById('konfig-modal');
+    const select = document.querySelector('select[name="konfiguracja"]');
+    const display = document.getElementById('konfig-display');
+    if (!modal || !select || !display) return;
+
+    function aktualizuj() {
+        const opt = select.options[select.selectedIndex];
+        display.value = (select.value && opt) ? opt.text : '';
+    }
+    aktualizuj();
+
+    function pokaz() { modal.style.display = 'flex'; }
+    function ukryj() { modal.style.display = 'none'; }
+    document.getElementById('konfig-otworz').addEventListener('click', pokaz);
+    display.addEventListener('click', pokaz);
+    modal.querySelector('.modal-zamknij').addEventListener('click', ukryj);
+    modal.addEventListener('click', function(e) { if (e.target === modal) ukryj(); });
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal.style.display !== 'none') ukryj();
+    });
+
+    modal.querySelectorAll('tbody tr[data-id]').forEach(function(tr) {
+        tr.addEventListener('click', function() {
+            select.value = tr.getAttribute('data-id');
+            aktualizuj();
+            ukryj();
+        });
+    });
+
+    const filtry = Array.from(modal.querySelectorAll('.konfig-filtry input'));
+    filtry.forEach(function(inp) {
+        inp.addEventListener('keydown', function(e) { if (e.key === 'Enter') e.preventDefault(); });
+        inp.addEventListener('input', function() {
+            const wartosci = filtry.map(i => i.value.trim().toLowerCase());
+            modal.querySelectorAll('tbody tr[data-id]').forEach(function(tr) {
+                const pasuje = wartosci.every(function(w, i) {
+                    if (!w) return true;
+                    const td = tr.children[i];
+                    return td && td.textContent.toLowerCase().includes(w);
+                });
+                tr.style.display = pasuje ? '' : 'none';
+            });
+        });
+    });
+})();
+</script>

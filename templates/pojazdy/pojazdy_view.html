@@ -19,7 +19,7 @@
         </thead>
         <tbody>
             {% for pojazd in pojazdy %}
-            <tr>
+            <tr data-id="{{ pojazd.id }}">
                 <td><input type="checkbox"></td>
                 <td>{{ pojazd.konfiguracja.model.marka }} {{ pojazd.konfiguracja.model.nazwa }} {{ pojazd.konfiguracja.wersja_wyposazenia }}</td>
                 <td>{{ pojazd.numer_rejestracyjny }}</td>
@@ -27,7 +27,7 @@
                 <td>{{ pojazd.przebieg_km }} km</td>
                 <td>{{ pojazd.get_status_display }}</td>
                 <td>{{ pojazd.get_stan_display }}</td>
-                <td><a href="#" class="btn btn-primary" style="font-size: 11px; padding: 3px 8px;">Szczegóły</a></td>
+                <td><a href="{% url 'pojazd_szczegoly' pojazd.id %}" class="btn btn-primary" style="font-size: 11px; padding: 3px 8px;">Szczegóły</a></td>
             </tr>
             {% empty %}
             <tr>
@@ -37,4 +37,21 @@
         </tbody>
     </table>
 </div>
-<script>initTabela({ tableId: 'tabela-pojazdow', tabela: 'pojazdy' });</script>
+<script>
+initTabela({
+    tableId: 'tabela-pojazdow',
+    tabela: 'pojazdy',
+    akcje: [
+        { label: 'Szczegóły', url: '/pojazdy/{id}/' },
+        { label: 'Edytuj', url: '/pojazdy/{id}/edytuj/' },
+        { label: 'Wycofaj', post: '/pojazdy/{id}/zmien-stan/', dane: { stan: 'do_wycofania' } },
+        { label: 'Dodaj podobny', url: '/pojazdy/dodaj/?podobny={id}' },
+        { label: 'Zmień stan', post: '/pojazdy/{id}/zmien-stan/', pole: 'stan', menu: [
+            ['w_przygotowaniu', 'W przygotowaniu'],
+            ['w_eksploatacji', 'W eksploatacji'],
+            ['wylaczony', 'Wyłączony z eksploatacji'],
+            ['do_wycofania', 'Do wycofania']
+        ] }
+    ]
+});
+</script>

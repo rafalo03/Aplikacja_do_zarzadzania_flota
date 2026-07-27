@@ -59,7 +59,7 @@
                                 <a href="/marki/" hx-get="/marki/" hx-target="#main-content" hx-push-url="true">Marki</a>
                                 <a href="/modele/" hx-get="/modele/" hx-target="#main-content" hx-push-url="true">Modele</a>
                                 <a href="/klasy/" hx-get="/klasy/" hx-target="#main-content" hx-push-url="true">Klasy pojazdów</a>
-                                <a href="#">Konfiguracje</a>
+                                <a href="/konfiguracje/" hx-get="/konfiguracje/" hx-target="#main-content" hx-push-url="true">Konfiguracje</a>
                             </div>
                         </div>
                     </div>
@@ -85,6 +85,12 @@
                     <div class="nav-group-header" onclick="toggleMenu(this)">Administracja <span class="arrow">▶</span></div>
                     <div class="nav-group-items">
                         <a href="/uzytkownicy/" hx-get="/uzytkownicy/" hx-target="#main-content" hx-push-url="true">Użytkownicy</a>
+                        <div class="nav-subgroup">
+                            <div class="nav-subgroup-header" onclick="toggleSubMenu(this)">Ustawienia firmy <span class="arrow">▶</span></div>
+                            <div class="nav-subgroup-items">
+                                <a href="/oddzialy/" hx-get="/oddzialy/" hx-target="#main-content" hx-push-url="true">Oddziały</a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </nav>

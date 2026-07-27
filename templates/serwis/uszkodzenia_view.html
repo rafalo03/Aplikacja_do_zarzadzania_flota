@@ -1,5 +1,9 @@
 <h1 class="page-title">Uszkodzenia</h1>
 <div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3>Wszystkie uszkodzenia ({{ uszkodzenia.count }})</h3>
+        <a href="{% url 'dodaj_uszkodzenie' %}" class="btn btn-primary">+ Dodaj uszkodzenie</a>
+    </div>
     <table class="table" id="tabela-uszkodzenia">
         <thead>
             <tr>
@@ -9,24 +13,29 @@
                 <th>Zgłaszający</th>
                 <th>Naprawione</th>
                 <th>Koszt</th>
+                <th>Akcje</th>
             </tr>
         </thead>
         <tbody>
             {% for u in uszkodzenia %}
-            <tr>
+            <tr data-id="{{ u.id }}">
                 <td>{{ u.pojazd }}</td>
                 <td>{{ u.data_wykrycia }}</td>
-                <td>{{ u.opis }}</td>
+                <td>{{ u.opis|truncatechars:60 }}</td>
                 <td>{{ u.zglaszajacy|default:"-" }}</td>
-                <td>{% if u.naprawione %}{% else %}{% endif %}</td>
+                <td>{% if u.naprawione %}✅{% else %}—{% endif %}</td>
                 <td>{{ u.koszt_naprawy|default:"-" }}</td>
+                <td><a href="{% url 'uszkodzenie_szczegoly' u.id %}" class="btn btn-primary" style="font-size: 12px; padding: 4px 10px;">Szczegóły</a></td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="6" style="text-align: center; color: var(--text-muted);">Brak uszkodzeń</td>
+                <td colspan="7" style="text-align: center; color: var(--text-muted);">Brak uszkodzeń</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
-<script>initTabela({ tableId: 'tabela-uszkodzenia', tabela: 'uszkodzenia' });</script>
+<script>initTabela({ tableId: 'tabela-uszkodzenia', tabela: 'uszkodzenia', akcje: [
+    { label: 'Szczegóły', url: '/uszkodzenia/{id}/' },
+    { label: 'Edytuj', url: '/uszkodzenia/{id}/edytuj/' }
+] });</script>

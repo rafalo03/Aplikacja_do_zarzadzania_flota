@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block title %}Edytuj pojazd{% endblock %}
+{% block page_title %}Edytuj pojazd — {{ pojazd.numer_rejestracyjny }}{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Edytuj pojazd — {{ pojazd.numer_rejestracyjny }}</h1>
+{% include 'pojazdy/pojazd_form.html' with przycisk='Zapisz zmiany' %}
+{% endblock %}

@@ -26,3 +26,16 @@ class UkladTabeli(models.Model):
         unique_together = ('user', 'tabela', 'nazwa')
         verbose_name = 'Układ tabeli'
         verbose_name_plural = 'Układy tabel'
+
+class Oddzial(models.Model):
+    nazwa = models.CharField(max_length=100, unique=True)
+    adres = models.CharField(max_length=200, null=True, blank=True)
+    telefon = models.CharField(max_length=20, null=True, blank=True)
+
+    def __str__(self):
+        return self.nazwa
+
+    class Meta:
+        verbose_name = 'Oddział'
+        verbose_name_plural = 'Oddziały'
+        ordering = ['nazwa']

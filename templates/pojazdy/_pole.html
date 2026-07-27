@@ -1,0 +1,7 @@
+<div class="form-group{% if pelna %} pelna{% endif %}">
+    <label>{{ field.label }}{% if field.field.required %} <span class="wymagane">*</span>{% endif %}</label>
+    {{ field }}
+    {% if field.errors %}
+    <p class="form-error">{{ field.errors.0 }}</p>
+    {% endif %}
+</div>

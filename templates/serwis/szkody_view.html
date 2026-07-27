@@ -19,7 +19,7 @@
         </thead>
         <tbody>
             {% for szkoda in szkody %}
-            <tr>
+            <tr data-id="{{ szkoda.id }}">
                 <td>{{ szkoda.pojazd }}</td>
                 <td>{{ szkoda.data_zdarzenia|default:"-" }}</td>
                 <td>{{ szkoda.numer_szkody|default:"-" }}</td>
@@ -27,7 +27,7 @@
                 <td>{{ szkoda.warsztat|default:"-" }}</td>
                 <td>{{ szkoda.get_status_display }}</td>
                 <td>{{ szkoda.rzeczywisty_koszt_netto|default:szkoda.planowany_koszt_netto|default:"-" }}</td>
-                <td><a href="#" class="btn btn-primary" style="font-size: 12px; padding: 4px 10px;">Szczegóły</a></td>
+                <td><a href="{% url 'szkoda_szczegoly' szkoda.id %}" class="btn btn-primary" style="font-size: 12px; padding: 4px 10px;">Szczegóły</a></td>
             </tr>
             {% empty %}
             <tr>
@@ -37,4 +37,7 @@
         </tbody>
     </table>
 </div>
-<script>initTabela({ tableId: 'tabela-szkody', tabela: 'szkody' });</script>
+<script>initTabela({ tableId: 'tabela-szkody', tabela: 'szkody', akcje: [
+    { label: 'Szczegóły', url: '/szkody/{id}/' },
+    { label: 'Edytuj', url: '/szkody/{id}/edytuj/' }
+] });</script>

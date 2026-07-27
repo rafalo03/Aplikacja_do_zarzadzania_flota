@@ -14,10 +14,10 @@
         </thead>
         <tbody>
             {% for klasa in klasy %}
-            <tr>
+            <tr data-id="{{ klasa.id }}">
                 <td>{{ klasa.nazwa }}</td>
                 <td>{{ klasa.opis|default:"-" }}</td>
-                <td><a href="#" class="btn btn-primary" style="font-size: 12px; padding: 4px 10px;">Edytuj</a></td>
+                <td><a href="{% url 'edytuj_klase' klasa.id %}" class="btn btn-primary" style="font-size: 12px; padding: 4px 10px;">Edytuj</a></td>
             </tr>
             {% empty %}
             <tr>
@@ -27,4 +27,7 @@
         </tbody>
     </table>
 </div>
-<script>initTabela({ tableId: 'tabela-klasy', tabela: 'klasy' });</script>
+<script>initTabela({ tableId: 'tabela-klasy', tabela: 'klasy', akcje: [
+    { label: 'Szczegóły', url: '/klasy/{id}/' },
+    { label: 'Edytuj', url: '/klasy/{id}/edytuj/' }
+] });</script>
