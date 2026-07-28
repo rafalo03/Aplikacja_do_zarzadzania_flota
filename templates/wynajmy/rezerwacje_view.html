@@ -1,0 +1,45 @@
+<h1 class="page-title">Rezerwacje</h1>
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3>Wszystkie rezerwacje ({{ rezerwacje.count }})</h3>
+        <a href="{% url 'dodaj_rezerwacje' %}" class="btn btn-primary">+ Dodaj rezerwację</a>
+    </div>
+    <table class="table" id="tabela-rezerwacje">
+        <thead>
+            <tr>
+                <th>Nr</th>
+                <th>Klient</th>
+                <th>Użytkownik pojazdu</th>
+                <th>Klasa</th>
+                <th>Pojazd</th>
+                <th>Data wydania</th>
+                <th>Data zwrotu</th>
+                <th>Status</th>
+                <th>Akcje</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for rezerwacja in rezerwacje %}
+            <tr data-id="{{ rezerwacja.id }}">
+                <td>{{ rezerwacja.id }}</td>
+                <td>{{ rezerwacja.klient }}</td>
+                <td>{{ rezerwacja.uzytkownik_pojazdu }}</td>
+                <td>{{ rezerwacja.klasa_pojazdu }}</td>
+                <td>{{ rezerwacja.pojazd|default:"-" }}</td>
+                <td>{{ rezerwacja.planowana_data_wydania }}</td>
+                <td>{{ rezerwacja.planowana_data_zwrotu }}</td>
+                <td>{{ rezerwacja.get_status_display }}</td>
+                <td><a href="{% url 'rezerwacja_szczegoly' rezerwacja.id %}" class="btn btn-primary" style="font-size: 12px; padding: 4px 10px;">Szczegóły</a></td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="9" style="text-align: center; color: var(--text-muted);">Brak rezerwacji</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<script>initTabela({ tableId: 'tabela-rezerwacje', tabela: 'rezerwacje', akcje: [
+    { label: 'Szczegóły', url: '/rezerwacje/{id}/' },
+    { label: 'Edytuj', url: '/rezerwacje/{id}/edytuj/' }
+] });</script>

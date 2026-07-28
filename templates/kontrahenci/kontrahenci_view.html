@@ -1,0 +1,43 @@
+<h1 class="page-title">Kontrahenci</h1>
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3>Wszyscy kontrahenci ({{ kontrahenci.count }})</h3>
+        <a href="{% url 'dodaj_kontrahenta' %}" class="btn btn-primary">+ Dodaj kontrahenta</a>
+    </div>
+    <table class="table" id="tabela-kontrahenci">
+        <thead>
+            <tr>
+                <th>Nazwa firmy</th>
+                <th>NIP</th>
+                <th>Miasto</th>
+                <th>Telefon</th>
+                <th>Email</th>
+                <th>Stan</th>
+                <th>Opiekun</th>
+                <th>Akcje</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for kontrahent in kontrahenci %}
+            <tr data-id="{{ kontrahent.id }}">
+                <td>{{ kontrahent.nazwa_firmy }}</td>
+                <td>{{ kontrahent.nip|default:"-" }}</td>
+                <td>{{ kontrahent.miasto|default:"-" }}</td>
+                <td>{{ kontrahent.telefon|default:"-" }}</td>
+                <td>{{ kontrahent.email|default:"-" }}</td>
+                <td>{{ kontrahent.get_stan_display }}</td>
+                <td>{{ kontrahent.opiekun.get_full_name|default:"-" }}</td>
+                <td><a href="{% url 'kontrahent_szczegoly' kontrahent.id %}" class="btn btn-primary" style="font-size: 12px; padding: 4px 10px;">Szczegóły</a></td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8" style="text-align: center; color: var(--text-muted);">Brak kontrahentów</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<script>initTabela({ tableId: 'tabela-kontrahenci', tabela: 'kontrahenci', akcje: [
+    { label: 'Szczegóły', url: '/kontrahenci/{id}/' },
+    { label: 'Edytuj', url: '/kontrahenci/{id}/edytuj/' }
+] });</script>

@@ -40,4 +40,6 @@ urlpatterns = [
     path('', include('pojazdy.urls')),
     path('', include('administracja.urls')),
     path('', include('serwis.urls')),
+    path('', include('kontrahenci.urls')),
+    path('', include('wynajmy.urls')),
 ]

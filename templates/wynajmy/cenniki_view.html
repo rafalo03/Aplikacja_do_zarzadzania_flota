@@ -1,0 +1,39 @@
+<h1 class="page-title">Cenniki</h1>
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3>Wszystkie cenniki ({{ cenniki.count }})</h3>
+        <a href="{% url 'dodaj_cennik' %}" class="btn btn-primary">+ Dodaj cennik</a>
+    </div>
+    <table class="table" id="tabela-cenniki">
+        <thead>
+            <tr>
+                <th>Nazwa</th>
+                <th>Firma</th>
+                <th>Typ stawki</th>
+                <th>Waluta</th>
+                <th>Aktywny</th>
+                <th>Akcje</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cennik in cenniki %}
+            <tr data-id="{{ cennik.id }}">
+                <td>{{ cennik.nazwa }}</td>
+                <td>{{ cennik.kontrahent|default:"Standardowy" }}</td>
+                <td>{{ cennik.get_typ_stawki_display }}</td>
+                <td>{{ cennik.waluta }}</td>
+                <td>{% if cennik.aktywny %}Tak{% else %}Nie{% endif %}</td>
+                <td><a href="{% url 'cennik_szczegoly' cennik.id %}" class="btn btn-primary" style="font-size: 12px; padding: 4px 10px;">Szczegóły</a></td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" style="text-align: center; color: var(--text-muted);">Brak cenników</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<script>initTabela({ tableId: 'tabela-cenniki', tabela: 'cenniki', akcje: [
+    { label: 'Szczegóły', url: '/cenniki/{id}/' },
+    { label: 'Edytuj', url: '/cenniki/{id}/edytuj/' }
+] });</script>

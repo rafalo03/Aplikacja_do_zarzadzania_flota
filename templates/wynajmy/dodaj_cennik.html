@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}{{ tytul|default:"Dodaj cennik" }}{% endblock %}
+{% block content %}
+<h1 class="page-title">{{ tytul|default:"Dodaj cennik" }}</h1>
+<div class="card">
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-grid">
+            {% for field in form %}
+            <div class="form-group">
+                <label>{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}<p class="form-error">{{ field.errors }}</p>{% endif %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <h3 style="margin-top: 24px; margin-bottom: 12px;">Pozycje cennika</h3>
+        {{ formset.management_form }}
+        {% if formset.non_form_errors %}<p class="form-error">{{ formset.non_form_errors }}</p>{% endif %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Klasa pojazdu</th>
+                    <th>Cena</th>
+                    <th>Usuń</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pozycja_form in formset %}
+                <tr>
+                    <td>
+                        {% for hidden in pozycja_form.hidden_fields %}{{ hidden }}{% endfor %}
+                        {{ pozycja_form.klasa_pojazdu }}
+                        {% if pozycja_form.klasa_pojazdu.errors %}<p class="form-error">{{ pozycja_form.klasa_pojazdu.errors }}</p>{% endif %}
+                    </td>
+                    <td>
+                        {{ pozycja_form.cena }}
+                        {% if pozycja_form.cena.errors %}<p class="form-error">{{ pozycja_form.cena.errors }}</p>{% endif %}
+                    </td>
+                    <td style="text-align: center;">{% if pozycja_form.instance.pk %}{{ pozycja_form.DELETE }}{% endif %}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div style="margin-top: 20px; display: flex; gap: 12px;">
+            <button type="submit" class="btn btn-primary">{{ przycisk|default:"Zapisz" }}</button>
+            <a href="{% url 'cenniki' %}" class="btn btn-secondary">Anuluj</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

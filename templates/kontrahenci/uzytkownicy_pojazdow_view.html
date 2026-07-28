@@ -1,0 +1,41 @@
+<h1 class="page-title">Użytkownicy pojazdów</h1>
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3>Wszyscy użytkownicy ({{ uzytkownicy.count }})</h3>
+        <a href="{% url 'dodaj_uzytkownika_pojazdu' %}" class="btn btn-primary">+ Dodaj użytkownika</a>
+    </div>
+    <table class="table" id="tabela-uzytkownicy-pojazdow">
+        <thead>
+            <tr>
+                <th>Imię</th>
+                <th>Nazwisko</th>
+                <th>Telefon</th>
+                <th>Email</th>
+                <th>Prawo jazdy</th>
+                <th>Ważność prawa jazdy</th>
+                <th>Akcje</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for uzytkownik in uzytkownicy %}
+            <tr data-id="{{ uzytkownik.id }}">
+                <td>{{ uzytkownik.imie }}</td>
+                <td>{{ uzytkownik.nazwisko }}</td>
+                <td>{{ uzytkownik.telefon|default:"-" }}</td>
+                <td>{{ uzytkownik.email|default:"-" }}</td>
+                <td>{{ uzytkownik.numer_prawa_jazdy|default:"-" }}</td>
+                <td>{{ uzytkownik.data_waznosci_prawa_jazdy|default:"-" }}</td>
+                <td><a href="{% url 'uzytkownik_pojazdu_szczegoly' uzytkownik.id %}" class="btn btn-primary" style="font-size: 12px; padding: 4px 10px;">Szczegóły</a></td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" style="text-align: center; color: var(--text-muted);">Brak użytkowników pojazdów</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<script>initTabela({ tableId: 'tabela-uzytkownicy-pojazdow', tabela: 'uzytkownicy_pojazdow', akcje: [
+    { label: 'Szczegóły', url: '/uzytkownicy-pojazdow/{id}/' },
+    { label: 'Edytuj', url: '/uzytkownicy-pojazdow/{id}/edytuj/' }
+] });</script>

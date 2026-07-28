@@ -1,0 +1,245 @@
+{% extends 'base.html' %}
+{% block title %}{{ tytul|default:"Dodaj rezerwację" }}{% endblock %}
+{% block content %}
+<h1 class="page-title">{{ tytul|default:"Dodaj rezerwację" }}</h1>
+<form method="post" class="pojazd-form">
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+    <p class="form-error" style="margin-bottom: 16px;">{{ form.non_field_errors.0 }}</p>
+    {% endif %}
+
+    <div class="form-kafelki">
+        <section class="kafelek karta-3d">
+            <div class="kafelek-header">
+                <div>
+                    <h3>Dane podstawowe</h3>
+                    <p>Klient, użytkownik i typ rezerwacji</p>
+                </div>
+            </div>
+            <div class="kafelek-pola">
+                {% include 'pojazdy/_pole.html' with field=form.status %}
+                {% include 'pojazdy/_pole.html' with field=form.typ %}
+                {% include 'pojazdy/_pole.html' with field=form.klient %}
+                {% include 'pojazdy/_pole.html' with field=form.uzytkownik_pojazdu %}
+                {% include 'pojazdy/_pole.html' with field=form.mpk_klienta %}
+                {% include 'pojazdy/_pole.html' with field=form.waluta %}
+                {% include 'pojazdy/_pole.html' with field=form.uwagi pelna=True %}
+                {% include 'pojazdy/_pole.html' with field=form.uwagi_faktura pelna=True %}
+            </div>
+        </section>
+
+        <section class="kafelek karta-3d">
+            <div class="kafelek-header">
+                <div>
+                    <h3>Dane szczegółowe</h3>
+                    <p>Pojazd, cennik i zamiany auta</p>
+                </div>
+            </div>
+            <div class="kafelek-pola">
+                {% include 'pojazdy/_pole.html' with field=form.klasa_pojazdu %}
+                <div class="form-group">
+                    <label>{{ form.pojazd.label }}</label>
+                    <div class="konfig-wybor pojazd-picker">
+                        <input type="text" readonly placeholder="Kliknij, aby wybrać pojazd">
+                        <div style="display: none;">{{ form.pojazd }}</div>
+                    </div>
+                    {% if form.pojazd.errors %}<p class="form-error">{{ form.pojazd.errors.0 }}</p>{% endif %}
+                </div>
+                {% include 'pojazdy/_pole.html' with field=form.cennik %}
+                {% include 'pojazdy/_pole.html' with field=form.cena_jednostkowa %}
+
+                <div class="form-group pelna">
+                    <label>Zamiany pojazdu</label>
+                    {{ formset.management_form }}
+                    {% if formset.non_form_errors %}<p class="form-error">{{ formset.non_form_errors }}</p>{% endif %}
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Pojazd</th>
+                                <th>Data zamiany</th>
+                                <th style="width: 60px;">Usuń</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for zmiana_form in formset %}
+                            <tr>
+                                <td>
+                                    {% for hidden in zmiana_form.hidden_fields %}{{ hidden }}{% endfor %}
+                                    <div class="konfig-wybor pojazd-picker">
+                                        <input type="text" readonly placeholder="Kliknij, aby wybrać pojazd">
+                                        <div style="display: none;">{{ zmiana_form.pojazd }}</div>
+                                    </div>
+                                    {% if zmiana_form.pojazd.errors %}<p class="form-error">{{ zmiana_form.pojazd.errors.0 }}</p>{% endif %}
+                                </td>
+                                <td>
+                                    {{ zmiana_form.data_zamiany }}
+                                    {% if zmiana_form.data_zamiany.errors %}<p class="form-error">{{ zmiana_form.data_zamiany.errors.0 }}</p>{% endif %}
+                                </td>
+                                <td style="text-align: center;">{% if zmiana_form.instance.pk %}{{ zmiana_form.DELETE }}{% endif %}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section class="kafelek karta-3d">
+            <div class="kafelek-header">
+                <div>
+                    <h3>Wydanie</h3>
+                    <p>Termin i miejsce wydania pojazdu</p>
+                </div>
+            </div>
+            <div class="kafelek-pola">
+                {% include 'pojazdy/_pole.html' with field=form.planowana_data_wydania %}
+                {% include 'pojazdy/_pole.html' with field=form.oddzial_wydania %}
+                {% include 'pojazdy/_pole.html' with field=form.podstawienie %}
+                {% include 'pojazdy/_pole.html' with field=form.adres_podstawienia pelna=True %}
+            </div>
+        </section>
+
+        <section class="kafelek karta-3d">
+            <div class="kafelek-header">
+                <div>
+                    <h3>Zwrot</h3>
+                    <p>Termin i miejsce zwrotu pojazdu</p>
+                </div>
+            </div>
+            <div class="kafelek-pola">
+                {% include 'pojazdy/_pole.html' with field=form.planowana_data_zwrotu %}
+                {% include 'pojazdy/_pole.html' with field=form.taki_sam_adres_zwrotu %}
+                {% include 'pojazdy/_pole.html' with field=form.adres_zwrotu pelna=True %}
+                {% include 'pojazdy/_pole.html' with field=form.uwagi_zwrot pelna=True %}
+            </div>
+        </section>
+    </div>
+
+    <div class="form-akcje">
+        <button type="submit" class="btn btn-primary">{{ przycisk|default:"Zapisz" }}</button>
+        <a href="{% url 'rezerwacje' %}" class="btn btn-secondary">Anuluj</a>
+    </div>
+</form>
+
+<div class="modal-tlo" id="pojazd-modal" style="display: none;">
+    <div class="modal-okno">
+        <div class="modal-naglowek">
+            <h3>Wybierz pojazd</h3>
+            <button type="button" class="modal-zamknij" title="Zamknij">&#10005;</button>
+        </div>
+        <div class="modal-tresc">
+            <a href="#" id="pojazd-wyczysc" style="display: inline-block; margin-bottom: 12px; font-size: 13px; color: var(--text-muted);">Wyczyść wybór pojazdu</a>
+            <table class="table" id="pojazd-tabela">
+                <thead>
+                    <tr>
+                        <th>Nr rejestracyjny</th>
+                        <th>Marka</th>
+                        <th>Model</th>
+                        <th>Klasa</th>
+                        <th>Status</th>
+                        <th>Oddział</th>
+                        <th>Przebieg</th>
+                    </tr>
+                    <tr class="konfig-filtry">
+                        <th><input type="text" placeholder="Filtruj..."></th>
+                        <th><input type="text" placeholder="Filtruj..."></th>
+                        <th><input type="text" placeholder="Filtruj..."></th>
+                        <th><input type="text" placeholder="Filtruj..."></th>
+                        <th><input type="text" placeholder="Filtruj..."></th>
+                        <th><input type="text" placeholder="Filtruj..."></th>
+                        <th><input type="text" placeholder="Filtruj..."></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in pojazdy %}
+                    <tr data-id="{{ p.id }}">
+                        <td>{{ p.numer_rejestracyjny }}</td>
+                        <td>{{ p.konfiguracja.model.marka.nazwa }}</td>
+                        <td>{{ p.konfiguracja.model.nazwa }}</td>
+                        <td>{{ p.konfiguracja.klasa_pojazdu|default:"-" }}</td>
+                        <td>{{ p.get_status_display }}</td>
+                        <td>{{ p.oddzial|default:"-" }}</td>
+                        <td>{{ p.przebieg_km }} km</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" style="text-align: center; color: var(--text-muted);">
+                            Brak pojazdów — <a href="{% url 'dodaj_pojazd' %}">dodaj pierwszy</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    const modal = document.getElementById('pojazd-modal');
+    if (!modal) return;
+    let aktywnySelect = null;
+    let aktywnyDisplay = null;
+
+    function aktualizuj(select, display) {
+        const opt = select.options[select.selectedIndex];
+        display.value = (select.value && opt) ? opt.text : '';
+    }
+
+    function pokaz() { modal.style.display = 'flex'; }
+    function ukryj() { modal.style.display = 'none'; }
+
+    document.querySelectorAll('.pojazd-picker').forEach(function(picker) {
+        const select = picker.querySelector('select');
+        const display = picker.querySelector('input[type="text"]');
+        if (!select || !display) return;
+        aktualizuj(select, display);
+        display.addEventListener('click', function() {
+            aktywnySelect = select;
+            aktywnyDisplay = display;
+            pokaz();
+        });
+    });
+
+    document.getElementById('pojazd-wyczysc').addEventListener('click', function(e) {
+        e.preventDefault();
+        if (aktywnySelect) {
+            aktywnySelect.value = '';
+            aktualizuj(aktywnySelect, aktywnyDisplay);
+        }
+        ukryj();
+    });
+    modal.querySelector('.modal-zamknij').addEventListener('click', ukryj);
+    modal.addEventListener('click', function(e) { if (e.target === modal) ukryj(); });
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && modal.style.display !== 'none') ukryj();
+    });
+
+    modal.querySelectorAll('tbody tr[data-id]').forEach(function(tr) {
+        tr.addEventListener('click', function() {
+            if (aktywnySelect) {
+                aktywnySelect.value = tr.getAttribute('data-id');
+                aktualizuj(aktywnySelect, aktywnyDisplay);
+            }
+            ukryj();
+        });
+    });
+
+    const filtry = Array.from(modal.querySelectorAll('.konfig-filtry input'));
+    filtry.forEach(function(inp) {
+        inp.addEventListener('keydown', function(e) { if (e.key === 'Enter') e.preventDefault(); });
+        inp.addEventListener('input', function() {
+            const wartosci = filtry.map(i => i.value.trim().toLowerCase());
+            modal.querySelectorAll('tbody tr[data-id]').forEach(function(tr) {
+                const pasuje = wartosci.every(function(w, i) {
+                    if (!w) return true;
+                    const td = tr.children[i];
+                    return td && td.textContent.toLowerCase().includes(w);
+                });
+                tr.style.display = pasuje ? '' : 'none';
+            });
+        });
+    });
+})();
+</script>
+{% endblock %}

@@ -42,9 +42,9 @@
                 <div class="nav-group">
                     <div class="nav-group-header" onclick="toggleMenu(this)">Wynajem <span class="arrow">▶</span></div>
                     <div class="nav-group-items">
-                        <a href="#">Rezerwacje</a>
-                        <a href="#">Użytkownicy pojazdów</a>
-                        <a href="#">Cenniki</a>
+                        <a href="/rezerwacje/" hx-get="/rezerwacje/" hx-target="#main-content" hx-push-url="true">Rezerwacje</a>
+                        <a href="/uzytkownicy-pojazdow/" hx-get="/uzytkownicy-pojazdow/" hx-target="#main-content" hx-push-url="true">Użytkownicy pojazdów</a>
+                        <a href="/cenniki/" hx-get="/cenniki/" hx-target="#main-content" hx-push-url="true">Cenniki</a>
                     </div>
                 </div>
 
@@ -77,7 +77,7 @@
                 <div class="nav-group">
                     <div class="nav-group-header" onclick="toggleMenu(this)">Kontrahenci <span class="arrow">▶</span></div>
                     <div class="nav-group-items">
-                        <a href="#">Kontrahenci</a>
+                        <a href="/kontrahenci/" hx-get="/kontrahenci/" hx-target="#main-content" hx-push-url="true">Kontrahenci</a>
                     </div>
                 </div>
 

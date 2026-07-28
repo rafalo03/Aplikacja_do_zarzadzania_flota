@@ -3,29 +3,6 @@ from pojazdy.models import Pojazd, Konfiguracja, KlasaPojazdu
 from kontrahenci.models import Kontrahent, UzytkownikPojazdu
 
 
-class UzytkownikPojazdu(models.Model):
-    imie = models.CharField(max_length=50)
-    nazwisko = models.CharField(max_length=50)
-    pesel = models.CharField(max_length=11, unique=True, null=True, blank=True)
-    ulica = models.CharField(max_length=100, null=True, blank=True)
-    numer_domu = models.CharField(max_length=10, null=True, blank=True)
-    numer_mieszkania = models.CharField(max_length=10, null=True, blank=True)
-    kod_pocztowy = models.CharField(max_length=10, null=True, blank=True)
-    miasto = models.CharField(max_length=100, null=True, blank=True)
-    kraj = models.CharField(max_length=50, default='Polska')
-    telefon = models.CharField(max_length=20, null=True, blank=True)
-    email = models.EmailField(null=True, blank=True)
-    numer_dokumentu = models.CharField(max_length=20, null=True, blank=True)
-    numer_prawa_jazdy = models.CharField(max_length=20, null=True, blank=True)
-    data_waznosci_prawa_jazdy = models.DateField(null=True, blank=True)
-
-    def __str__(self):
-        return f"{self.imie} {self.nazwisko}"
-
-    class Meta:
-        verbose_name = 'Użytkownik pojazdu'
-        verbose_name_plural = 'Użytkownicy pojazdów'
-
 class Cennik(models.Model):
     TYP_STAWKI = [
         ('dzienna', 'Dzienna'),
@@ -133,3 +110,17 @@ class Rezerwacja(models.Model):
     class Meta:
         verbose_name = 'Rezerwacja'
         verbose_name_plural = 'Rezerwacje'
+
+
+class ZmianaPojazdu(models.Model):
+    rezerwacja = models.ForeignKey(Rezerwacja, on_delete=models.CASCADE, related_name='zmiany_pojazdu')
+    pojazd = models.ForeignKey(Pojazd, on_delete=models.PROTECT, related_name='zmiany_rezerwacji')
+    data_zamiany = models.DateTimeField(verbose_name='Data zamiany')
+
+    def __str__(self):
+        return f"{self.rezerwacja_id}: {self.pojazd} od {self.data_zamiany}"
+
+    class Meta:
+        verbose_name = 'Zamiana pojazdu'
+        verbose_name_plural = 'Zamiany pojazdów'
+        ordering = ['data_zamiany']

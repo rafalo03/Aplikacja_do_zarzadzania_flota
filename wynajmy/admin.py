@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import UzytkownikPojazdu, KlasaPojazdu, Cennik, PozycjaCennika, Rezerwacja
+from .models import Cennik, PozycjaCennika, Rezerwacja, ZmianaPojazdu
 
 class PozycjaCennikаInline(admin.TabularInline):
     model = PozycjaCennika
@@ -9,5 +9,10 @@ class PozycjaCennikаInline(admin.TabularInline):
 class CennikAdmin(admin.ModelAdmin):
     inlines = [PozycjaCennikаInline]
 
-admin.site.register(UzytkownikPojazdu)
-admin.site.register(Rezerwacja)
+class ZmianaPojazduInline(admin.TabularInline):
+    model = ZmianaPojazdu
+    extra = 1
+
+@admin.register(Rezerwacja)
+class RezerwacjaAdmin(admin.ModelAdmin):
+    inlines = [ZmianaPojazduInline]
