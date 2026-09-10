@@ -2,7 +2,7 @@
 <div class="card">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <h3>Oddziały ({{ oddzialy.count }})</h3>
-        <a href="{% url 'dodaj_oddzial' %}" class="btn btn-primary">+ Dodaj oddział</a>
+        {% if uprawnienia.administracja %}<a href="{% url 'dodaj_oddzial' %}" class="btn btn-primary">+ Dodaj oddział</a>{% endif %}
     </div>
     <table class="table" id="tabela-oddzialy">
         <thead>

@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(venv/bin/python manage.py check)",
+      "Bash(venv/bin/python manage.py showmigrations)",
+      "Bash(venv/bin/python /private/tmp/claude-501/-Users-rafal-flota/b95099ba-2f04-49c6-a5f2-00d59d9a3289/scratchpad/smoke.py)",
+      "Bash(PYTHONPATH=/Users/rafal/flota venv/bin/python /private/tmp/claude-501/-Users-rafal-flota/b95099ba-2f04-49c6-a5f2-00d59d9a3289/scratchpad/smoke.py)",
+      "Bash(python3 -)",
+      "Bash(PYTHONPATH=/Users/rafal/flota venv/bin/python *)",
+      "Bash(venv/bin/python manage.py makemigrations wynajmy)",
+      "Bash(venv/bin/python manage.py migrate)",
+      "Bash(venv/bin/python manage.py makemigrations --check --dry-run)",
+      "Bash(venv/bin/python manage.py test wynajmy)",
+      "Bash(PYTHONPATH=/Users/rafal/flota:/private/tmp/claude-501/-Users-rafal-flota/b95099ba-2f04-49c6-a5f2-00d59d9a3289/scratchpad venv/bin/python -c ' *)",
+      "Bash(PYTHONPATH=/Users/rafal/flota:/private/tmp/claude-501/-Users-rafal-flota/b95099ba-2f04-49c6-a5f2-00d59d9a3289/scratchpad DJANGO_SETTINGS_MODULE=demo_settings venv/bin/python manage.py runserver 8765 --noreload)",
+      "Bash(PYTHONPATH=/Users/rafal/flota:/private/tmp/claude-501/-Users-rafal-flota/b95099ba-2f04-49c6-a5f2-00d59d9a3289/scratchpad venv/bin/python /private/tmp/claude-501/-Users-rafal-flota/b95099ba-2f04-49c6-a5f2-00d59d9a3289/scratchpad/render.py /rezerwacje/kalendarz/ /rezerwacje/ /rezerwacje/dodaj/)",
+      "Bash(PYTHONPATH=/Users/rafal/flota:$S venv/bin/python *)",
+      "Bash(PYTHONPATH=/Users/rafal/flota:/private/tmp/claude-501/-Users-rafal-flota/b95099ba-2f04-49c6-a5f2-00d59d9a3289/scratchpad venv/bin/python /private/tmp/claude-501/-Users-rafal-flota/b95099ba-2f04-49c6-a5f2-00d59d9a3289/scratchpad/render.py /rezerwacje/6/wydanie/ /rezerwacje/2/zwrot/ /cenniki/2/edytuj/ /kontrahenci/3/)",
+      "Bash(venv/bin/python manage.py test)",
+      "Bash(PYTHONPATH=/Users/rafal/flota:/private/tmp/claude-501/-Users-rafal-flota/b95099ba-2f04-49c6-a5f2-00d59d9a3289/scratchpad venv/bin/python /private/tmp/claude-501/-Users-rafal-flota/b95099ba-2f04-49c6-a5f2-00d59d9a3289/scratchpad/render.py /kontrahenci/4/)",
+      "Bash(pkill -f \"runserver 8765\")",
+      "Bash(venv/bin/pip freeze *)",
+      "Bash(sed -n '/^def dodaj_polise/,/^def marki/p' pojazdy/views.py)",
+      "Bash(sed -n '/^def edytuj_polise/,/^$/p' pojazdy/views.py)",
+      "Bash(sed -n '/class EdytujUzytkownikaForm/,$p' administracja/forms.py)",
+      "Bash(sed -n '/def edytuj_uzytkownika/,$p' administracja/views.py)",
+      "Bash(venv/bin/python manage.py makemigrations serwis)",
+      "Bash(PYTHONPATH=/Users/rafal/flota:/private/tmp/claude-501/-Users-rafal-flota/b95099ba-2f04-49c6-a5f2-00d59d9a3289/scratchpad venv/bin/python /private/tmp/claude-501/-Users-rafal-flota/b95099ba-2f04-49c6-a5f2-00d59d9a3289/scratchpad/render.py /zlecenia/ /szkody/ /uszkodzenia/ /profil/ /pojazdy/1/ /usun/pojazd/1/ /kontrahenci/4/edytuj/)",
+      "Bash(venv/bin/python manage.py makemigrations administracja)"
+    ]
+  }
+}

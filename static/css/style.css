@@ -1253,3 +1253,572 @@ body.col-resizing {
 #konfig-tabela tbody tr[data-id]:hover td {
     background: rgba(59, 130, 246, 0.12);
 }
+
+/* ==========================================================================
+   Rezerwacje: odznaki, komunikaty, filtry, kalendarz, protokoly
+   ========================================================================== */
+
+:root {
+    --ok: #16a34a;
+    --ok-tlo: rgba(22, 163, 74, 0.12);
+    --blad: #dc2626;
+    --blad-tlo: rgba(220, 38, 38, 0.12);
+    --uwaga: #d97706;
+    --uwaga-tlo: rgba(217, 119, 6, 0.14);
+    --info: #0284c7;
+    --info-tlo: rgba(2, 132, 199, 0.12);
+    --akcent-tlo: rgba(59, 130, 246, 0.14);
+    --neutralny: #64748b;
+    --neutralny-tlo: rgba(100, 116, 139, 0.14);
+}
+
+[data-theme="dark"] {
+    --ok: #4ade80;
+    --ok-tlo: rgba(74, 222, 128, 0.16);
+    --blad: #f87171;
+    --blad-tlo: rgba(248, 113, 113, 0.16);
+    --uwaga: #fbbf24;
+    --uwaga-tlo: rgba(251, 191, 36, 0.16);
+    --info: #38bdf8;
+    --info-tlo: rgba(56, 189, 248, 0.16);
+    --akcent-tlo: rgba(59, 130, 246, 0.22);
+    --neutralny: #94a3b8;
+    --neutralny-tlo: rgba(148, 163, 184, 0.18);
+}
+
+/* --- naglowki stron i paski akcji --- */
+
+.naglowek-strony {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.naglowek-strony .page-title {
+    margin: 0;
+}
+
+.karta-naglowek {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+}
+
+.pasek-akcji {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.btn-maly {
+    font-size: 12px;
+    padding: 4px 10px;
+}
+
+.btn-danger {
+    background: var(--blad);
+    color: #ffffff;
+    border: 1px solid transparent;
+}
+
+.btn-danger:hover {
+    filter: brightness(0.92);
+}
+
+/* --- odznaki statusow --- */
+
+.odznaka {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    white-space: nowrap;
+    background: var(--neutralny-tlo);
+    color: var(--neutralny);
+}
+
+.odznaka-ok       { background: var(--ok-tlo);        color: var(--ok); }
+.odznaka-blad     { background: var(--blad-tlo);      color: var(--blad); }
+.odznaka-uwaga    { background: var(--uwaga-tlo);     color: var(--uwaga); }
+.odznaka-info     { background: var(--info-tlo);      color: var(--info); }
+.odznaka-akcent   { background: var(--akcent-tlo);    color: var(--accent); }
+.odznaka-neutralny{ background: var(--neutralny-tlo); color: var(--neutralny); }
+
+/* --- komunikaty --- */
+
+.komunikaty {
+    padding: 16px 30px 0;
+}
+
+.alert {
+    padding: 11px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    border: 1px solid transparent;
+    margin-bottom: 12px;
+}
+
+.alert-success, .alert-ok {
+    background: var(--ok-tlo);
+    border-color: var(--ok);
+    color: var(--ok);
+}
+
+.alert-error, .alert-blad {
+    background: var(--blad-tlo);
+    border-color: var(--blad);
+    color: var(--blad);
+}
+
+.alert-warning, .alert-ostrzezenie {
+    background: var(--uwaga-tlo);
+    border-color: var(--uwaga);
+    color: var(--uwaga);
+}
+
+.alert-info, .alert-debug {
+    background: var(--info-tlo);
+    border-color: var(--info);
+    color: var(--info);
+}
+
+/* --- kafelki statystyk --- */
+
+.kafelki-statystyk {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.kafelek-statystyka {
+    display: block;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 10px;
+    padding: 16px 18px;
+    text-decoration: none;
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.kafelek-statystyka:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.12);
+}
+
+.kafelek-statystyka span {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--text-muted);
+}
+
+.kafelek-statystyka strong {
+    display: block;
+    margin-top: 6px;
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.kafelek-alarm {
+    border-left-color: var(--blad);
+}
+
+.kafelek-alarm strong {
+    color: var(--blad);
+}
+
+/* --- pasek filtrow --- */
+
+.pasek-filtrow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 18px;
+    margin-bottom: 18px;
+    border-bottom: 1px solid var(--border);
+}
+
+.pasek-filtrow .filter-input {
+    min-width: 220px;
+}
+
+.filtr-data {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.filtr-data .filter-input {
+    min-width: 0;
+    width: 150px;
+}
+
+/* --- wycena w formularzu rezerwacji --- */
+
+.wycena {
+    background: var(--akcent-tlo);
+    border: 1px dashed var(--accent);
+    border-radius: 8px;
+    padding: 12px 14px;
+}
+
+.wycena-etykieta {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--accent);
+    margin-bottom: 4px;
+}
+
+.wycena p {
+    font-size: 13px;
+    color: var(--text);
+}
+
+/* --- modal wyboru pojazdu --- */
+
+.modal-pasek {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 12px 0;
+}
+
+.modal-pasek a {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.modal-przelacznik {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--text);
+    cursor: pointer;
+}
+
+#pojazd-tabela tbody tr[data-id] {
+    cursor: pointer;
+}
+
+#pojazd-tabela tbody tr[data-id]:hover td {
+    background: rgba(59, 130, 246, 0.12);
+}
+
+/* --- protokol wydania / zwrotu --- */
+
+.protokol {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(240px, 1fr);
+    gap: 20px;
+    align-items: start;
+}
+
+.protokol-opis {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 18px;
+}
+
+.protokol-podsumowanie h3 {
+    font-size: 15px;
+    margin-bottom: 14px;
+    color: var(--text);
+}
+
+.protokol-podsumowanie dl > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 6px 0;
+    border-bottom: 1px dashed var(--border);
+    font-size: 13px;
+}
+
+.protokol-podsumowanie dt {
+    color: var(--text-muted);
+}
+
+.protokol-podsumowanie dd {
+    color: var(--text);
+    text-align: right;
+    font-weight: 500;
+}
+
+.protokol-adres {
+    margin-top: 14px;
+    font-size: 13px;
+    color: var(--text);
+}
+
+.protokol-adres span {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--text-muted);
+}
+
+@media (max-width: 900px) {
+    .protokol {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* --- kalendarz rezerwacji --- */
+
+.kalendarz-pasek {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+}
+
+.kalendarz-zakres {
+    font-size: 14px;
+    color: var(--text);
+}
+
+.kalendarz-przewijanie {
+    overflow-x: auto;
+}
+
+.kalendarz {
+    display: grid;
+    grid-template-columns: 190px minmax(calc(var(--dni) * 34px), 1fr);
+    min-width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.kalendarz-rog {
+    padding: 8px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--text-muted);
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    position: sticky;
+    left: 0;
+    z-index: 3;
+}
+
+.kalendarz-dni,
+.kalendarz-wiersz {
+    display: grid;
+    grid-template-columns: repeat(var(--dni), minmax(34px, 1fr));
+}
+
+.kalendarz-dni {
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+}
+
+.kalendarz-dzien {
+    padding: 5px 2px;
+    text-align: center;
+    border-left: 1px solid var(--border);
+    font-size: 10px;
+    color: var(--text-muted);
+    line-height: 1.3;
+}
+
+.kalendarz-dzien strong {
+    display: block;
+    font-size: 13px;
+    color: var(--text);
+}
+
+.kalendarz-dzien small {
+    font-size: 9px;
+}
+
+.kalendarz-dzien.kalendarz-dzis,
+.kalendarz-komorka.kalendarz-dzis {
+    background: var(--akcent-tlo);
+}
+
+.kalendarz-pojazd {
+    padding: 8px 12px;
+    border-top: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    background: var(--card-bg);
+    font-size: 12px;
+    position: sticky;
+    left: 0;
+    z-index: 2;
+}
+
+.kalendarz-pojazd a {
+    display: block;
+    color: var(--text);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.kalendarz-pojazd a:hover {
+    color: var(--accent);
+}
+
+.kalendarz-pojazd small {
+    display: block;
+    color: var(--text-muted);
+    font-size: 11px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.kalendarz-wiersz {
+    position: relative;
+    border-top: 1px solid var(--border);
+    grid-auto-rows: 44px;
+}
+
+.kalendarz-wiersz > * {
+    grid-row: 1;
+}
+
+.kalendarz-komorka {
+    border-left: 1px solid var(--border);
+}
+
+.kalendarz-pasek-rezerwacji {
+    align-self: center;
+    margin: 0 2px;
+    padding: 5px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #ffffff;
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    z-index: 1;
+    background: var(--neutralny);
+}
+
+.kalendarz-pasek-rezerwacji:hover {
+    filter: brightness(1.08);
+}
+
+.pasek-info   { background: var(--info); }
+.pasek-ok     { background: var(--ok); }
+.pasek-akcent { background: var(--accent); }
+.pasek-blad   { background: var(--blad); }
+
+.kalendarz-pusty {
+    grid-column: 1 / -1;
+    padding: 24px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+.kalendarz-legenda {
+    display: flex;
+    gap: 18px;
+    margin-top: 14px;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.kalendarz-legenda span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.kalendarz-legenda i {
+    width: 14px;
+    height: 10px;
+    border-radius: 3px;
+    display: inline-block;
+}
+
+/* --- pulpit --- */
+
+.pulpit-kolumny {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    gap: 20px;
+    align-items: start;
+}
+
+/* --- potwierdzenie usuniecia --- */
+
+.potwierdzenie {
+    max-width: 620px;
+}
+
+.potwierdzenie-pytanie {
+    font-size: 15px;
+    color: var(--text);
+    margin-bottom: 16px;
+}
+
+.potwierdzenie-powiazania {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: var(--text);
+}
+
+.potwierdzenie-powiazania span {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+}
+
+.potwierdzenie-powiazania ul {
+    margin: 0;
+    padding-left: 18px;
+}
+
+.pole-podpowiedz {
+    margin-top: 4px;
+    font-size: 11px;
+    color: var(--text-muted);
+    line-height: 1.4;
+}
+
+.pole-podpowiedz ul {
+    margin: 4px 0 0;
+    padding-left: 16px;
+}

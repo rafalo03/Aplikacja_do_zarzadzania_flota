@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}Moje konto{% endblock %}
+{% block content %}
+<h1 class="page-title">Moje konto</h1>
+
+<div class="pulpit-kolumny">
+    <div class="card">
+        <div class="karta-naglowek">
+            <h3>Dane konta</h3>
+            <span class="odznaka odznaka-neutralny">{{ request.user.username }}</span>
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            {% if form.non_field_errors %}<div class="alert alert-blad">{{ form.non_field_errors.0 }}</div>{% endif %}
+            <div class="form-grid">
+                {% for field in form %}
+                {% include 'pojazdy/_pole.html' with field=field %}
+                {% endfor %}
+            </div>
+            <div class="form-akcje">
+                <button type="submit" name="zapisz_dane" class="btn btn-primary">Zapisz dane</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="card">
+        <div class="karta-naglowek">
+            <h3>Zmiana hasła</h3>
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            {% if form_hasla.non_field_errors %}<div class="alert alert-blad">{{ form_hasla.non_field_errors.0 }}</div>{% endif %}
+            <div class="form-grid">
+                {% for field in form_hasla %}
+                <div class="form-group pelna">
+                    <label>{{ field.label }}{% if field.field.required %} <span class="wymagane">*</span>{% endif %}</label>
+                    {{ field }}
+                    {% if field.help_text %}<p class="pole-podpowiedz">{{ field.help_text|safe }}</p>{% endif %}
+                    {% if field.errors %}<p class="form-error">{{ field.errors.0 }}</p>{% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            <div class="form-akcje">
+                <button type="submit" name="zmien_haslo" class="btn btn-primary">Zmień hasło</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

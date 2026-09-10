@@ -2,7 +2,7 @@
 <div class="card">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <h3>Wszystkie polisy ({{ polisy.count }})</h3>
-        <a href="{% url 'dodaj_polise' %}" class="btn btn-primary">+ Dodaj polisę</a>
+        {% if uprawnienia.flota %}<a href="{% url 'dodaj_polise' %}" class="btn btn-primary">+ Dodaj polisę</a>{% endif %}
     </div>
     <table class="table" id="tabela-polisy">
         <thead>

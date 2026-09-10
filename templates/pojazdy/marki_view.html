@@ -2,7 +2,7 @@
 <div class="card">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <h3>Wszystkie marki ({{ marki.count }})</h3>
-        <a href="{% url 'dodaj_marke' %}" class="btn btn-primary">+ Dodaj markę</a>
+        {% if uprawnienia.slowniki %}<a href="{% url 'dodaj_marke' %}" class="btn btn-primary">+ Dodaj markę</a>{% endif %}
     </div>
     <table class="table" id="tabela-marki">
         <thead>

@@ -21,11 +21,14 @@
             </button>
             <div class="user-dropdown" id="user-dropdown">
                 <div class="user-dropdown-header">
-                    <strong>{{ request.user.get_full_name }}</strong>
+                    <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>
                     <span>{{ request.user.email }}</span>
+                    <span class="odznaka odznaka-neutralny" style="margin-top: 6px;">
+                        {{ uprawnienia.rola|capfirst }}{% if uprawnienia.oddzial %} · {{ uprawnienia.oddzial }}{% endif %}
+                    </span>
                 </div>
                 <div class="user-dropdown-divider"></div>
-                <a href="#">Ustawienia</a>
+                <a href="{% url 'profil' %}">Moje konto</a>
                 <form method="post" action="{% url 'logout' %}" style="margin: 0;">
                     {% csrf_token %}
                     <button type="submit" class="logout-btn">Wyloguj się</button>
@@ -43,6 +46,7 @@
                     <div class="nav-group-header" onclick="toggleMenu(this)">Wynajem <span class="arrow">▶</span></div>
                     <div class="nav-group-items">
                         <a href="/rezerwacje/" hx-get="/rezerwacje/" hx-target="#main-content" hx-push-url="true">Rezerwacje</a>
+                        <a href="/rezerwacje/kalendarz/" hx-get="/rezerwacje/kalendarz/" hx-target="#main-content" hx-push-url="true">Kalendarz</a>
                         <a href="/uzytkownicy-pojazdow/" hx-get="/uzytkownicy-pojazdow/" hx-target="#main-content" hx-push-url="true">Użytkownicy pojazdów</a>
                         <a href="/cenniki/" hx-get="/cenniki/" hx-target="#main-content" hx-push-url="true">Cenniki</a>
                     </div>
@@ -81,6 +85,7 @@
                     </div>
                 </div>
 
+                {% if uprawnienia.administracja %}
                 <div class="nav-group">
                     <div class="nav-group-header" onclick="toggleMenu(this)">Administracja <span class="arrow">▶</span></div>
                     <div class="nav-group-items">
@@ -93,10 +98,18 @@
                         </div>
                     </div>
                 </div>
+                {% endif %}
             </nav>
         </aside>
 
         <div class="main">
+            {% if messages %}
+            <div class="komunikaty">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags|default:'info' }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
             <main class="content" id="main-content">
                 {% block content %}
                 {% endblock %}

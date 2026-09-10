@@ -1,35 +1,53 @@
-<h1 class="page-title">Uszkodzenia</h1>
+<div class="naglowek-strony">
+    <h1 class="page-title">Uszkodzenia</h1>
+    {% if uprawnienia.operacje %}<a href="{% url 'dodaj_uszkodzenie' %}" class="btn btn-primary">+ Zgłoś uszkodzenie</a>{% endif %}
+</div>
+
 <div class="card">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h3>Wszystkie uszkodzenia ({{ uszkodzenia.count }})</h3>
-        <a href="{% url 'dodaj_uszkodzenie' %}" class="btn btn-primary">+ Dodaj uszkodzenie</a>
-    </div>
+    <form method="get" class="pasek-filtrow">
+        <input type="search" name="szukaj" value="{{ szukaj }}" class="filter-input"
+               placeholder="Rejestracja, opis, zgłaszający…">
+        <select name="naprawione" class="filter-select">
+            <option value="">Wszystkie</option>
+            <option value="nie" {% if naprawione == 'nie' %}selected{% endif %}>Do naprawy</option>
+            <option value="tak" {% if naprawione == 'tak' %}selected{% endif %}>Naprawione</option>
+        </select>
+        <button type="submit" class="btn btn-primary">Filtruj</button>
+        <a href="{% url 'uszkodzenia' %}" class="btn btn-secondary">Wyczyść</a>
+    </form>
+
+    <h3 style="margin-bottom: 16px;">Znalezione uszkodzenia ({{ uszkodzenia.count }})</h3>
+
     <table class="table" id="tabela-uszkodzenia">
         <thead>
             <tr>
+                <th>Nr</th>
                 <th>Pojazd</th>
                 <th>Data wykrycia</th>
                 <th>Opis</th>
                 <th>Zgłaszający</th>
-                <th>Naprawione</th>
+                <th>Zdjęcie</th>
                 <th>Koszt</th>
+                <th>Status</th>
                 <th>Akcje</th>
             </tr>
         </thead>
         <tbody>
             {% for u in uszkodzenia %}
             <tr data-id="{{ u.id }}">
-                <td>{{ u.pojazd }}</td>
-                <td>{{ u.data_wykrycia }}</td>
+                <td>{{ u.id }}</td>
+                <td>{{ u.pojazd.numer_rejestracyjny }}</td>
+                <td>{{ u.data_wykrycia|date:"d.m.Y" }}</td>
                 <td>{{ u.opis|truncatechars:60 }}</td>
-                <td>{{ u.zglaszajacy|default:"-" }}</td>
-                <td>{% if u.naprawione %}✅{% else %}—{% endif %}</td>
-                <td>{{ u.koszt_naprawy|default:"-" }}</td>
-                <td><a href="{% url 'uszkodzenie_szczegoly' u.id %}" class="btn btn-primary" style="font-size: 12px; padding: 4px 10px;">Szczegóły</a></td>
+                <td>{{ u.zglaszajacy|default:"—" }}</td>
+                <td>{% if u.zdjecie %}<a href="{{ u.zdjecie.url }}" target="_blank">Otwórz</a>{% else %}—{% endif %}</td>
+                <td>{{ u.koszt_naprawy|default:"—" }}</td>
+                <td><span class="odznaka odznaka-{{ u.kolor_statusu }}">{{ u.status_opis }}</span></td>
+                <td><a href="{% url 'uszkodzenie_szczegoly' u.id %}" class="btn btn-primary btn-maly">Szczegóły</a></td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="7" style="text-align: center; color: var(--text-muted);">Brak uszkodzeń</td>
+                <td colspan="9" style="text-align: center; color: var(--text-muted);">Brak uszkodzeń spełniających kryteria</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -37,5 +55,7 @@
 </div>
 <script>initTabela({ tableId: 'tabela-uszkodzenia', tabela: 'uszkodzenia', akcje: [
     { label: 'Szczegóły', url: '/uszkodzenia/{id}/' },
+{% if uprawnienia.operacje %}
     { label: 'Edytuj', url: '/uszkodzenia/{id}/edytuj/' }
+{% endif %}
 ] });</script>

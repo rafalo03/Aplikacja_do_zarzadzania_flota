@@ -1,19 +1,62 @@
-<h1 class="page-title">Rezerwacje</h1>
-<div class="card">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h3>Wszystkie rezerwacje ({{ rezerwacje.count }})</h3>
-        <a href="{% url 'dodaj_rezerwacje' %}" class="btn btn-primary">+ Dodaj rezerwację</a>
+<div class="naglowek-strony">
+    <h1 class="page-title">Rezerwacje</h1>
+    <div class="pasek-akcji">
+        <a href="{% url 'kalendarz_rezerwacji' %}" class="btn btn-secondary"
+           hx-get="{% url 'kalendarz_rezerwacji' %}" hx-target="#main-content" hx-push-url="true">Kalendarz</a>
+        {% if uprawnienia.operacje %}<a href="{% url 'dodaj_rezerwacje' %}" class="btn btn-primary">+ Dodaj rezerwację</a>{% endif %}
     </div>
+</div>
+
+<div class="kafelki-statystyk">
+    <a class="kafelek-statystyka" href="?status=aktywne">
+        <span>Aktywne</span>
+        <strong>{{ statystyki.aktywne }}</strong>
+    </a>
+    <a class="kafelek-statystyka" href="?status=w_toku">
+        <span>W toku</span>
+        <strong>{{ statystyki.w_toku }}</strong>
+    </a>
+    <a class="kafelek-statystyka" href="?status=potwierdzona">
+        <span>Do wydania (7 dni)</span>
+        <strong>{{ statystyki.do_wydania }}</strong>
+    </a>
+    <a class="kafelek-statystyka {% if statystyki.opoznione %}kafelek-alarm{% endif %}" href="?status=w_toku">
+        <span>Po terminie zwrotu</span>
+        <strong>{{ statystyki.opoznione }}</strong>
+    </a>
+</div>
+
+<div class="card">
+    <form method="get" class="pasek-filtrow">
+        <input type="search" name="szukaj" value="{{ szukaj }}" class="filter-input"
+               placeholder="Numer, klient, użytkownik, rejestracja…">
+        <select name="status" class="filter-select">
+            <option value="">Wszystkie statusy</option>
+            <option value="aktywne" {% if status == 'aktywne' %}selected{% endif %}>Tylko aktywne</option>
+            {% for wartosc, etykieta in statusy %}
+            <option value="{{ wartosc }}" {% if status == wartosc %}selected{% endif %}>{{ etykieta }}</option>
+            {% endfor %}
+        </select>
+        <label class="filtr-data">od <input type="date" name="od" value="{{ od }}" class="filter-input"></label>
+        <label class="filtr-data">do <input type="date" name="do" value="{{ do }}" class="filter-input"></label>
+        <button type="submit" class="btn btn-primary">Filtruj</button>
+        <a href="{% url 'rezerwacje' %}" class="btn btn-secondary">Wyczyść</a>
+    </form>
+
+    <h3 style="margin-bottom: 16px;">Znalezione rezerwacje ({{ rezerwacje.count }})</h3>
+
     <table class="table" id="tabela-rezerwacje">
         <thead>
             <tr>
-                <th>Nr</th>
+                <th>Numer</th>
                 <th>Klient</th>
                 <th>Użytkownik pojazdu</th>
                 <th>Klasa</th>
                 <th>Pojazd</th>
-                <th>Data wydania</th>
-                <th>Data zwrotu</th>
+                <th>Wydanie</th>
+                <th>Zwrot</th>
+                <th>Dni</th>
+                <th>Wartość</th>
                 <th>Status</th>
                 <th>Akcje</th>
             </tr>
@@ -21,19 +64,24 @@
         <tbody>
             {% for rezerwacja in rezerwacje %}
             <tr data-id="{{ rezerwacja.id }}">
-                <td>{{ rezerwacja.id }}</td>
+                <td>{{ rezerwacja.numer }}</td>
                 <td>{{ rezerwacja.klient }}</td>
                 <td>{{ rezerwacja.uzytkownik_pojazdu }}</td>
                 <td>{{ rezerwacja.klasa_pojazdu }}</td>
-                <td>{{ rezerwacja.pojazd|default:"-" }}</td>
-                <td>{{ rezerwacja.planowana_data_wydania }}</td>
-                <td>{{ rezerwacja.planowana_data_zwrotu }}</td>
-                <td>{{ rezerwacja.get_status_display }}</td>
-                <td><a href="{% url 'rezerwacja_szczegoly' rezerwacja.id %}" class="btn btn-primary" style="font-size: 12px; padding: 4px 10px;">Szczegóły</a></td>
+                <td>{{ rezerwacja.pojazd.numer_rejestracyjny|default:"—" }}</td>
+                <td>{{ rezerwacja.planowana_data_wydania|date:"d.m.Y H:i" }}</td>
+                <td>
+                    {{ rezerwacja.planowana_data_zwrotu|date:"d.m.Y H:i" }}
+                    {% if rezerwacja.czy_opozniona %}<span class="odznaka odznaka-blad">po terminie</span>{% endif %}
+                </td>
+                <td>{{ rezerwacja.liczba_dni }}</td>
+                <td>{% if rezerwacja.wartosc_calkowita %}{{ rezerwacja.wartosc_calkowita }} {{ rezerwacja.waluta }}{% else %}—{% endif %}</td>
+                <td><span class="odznaka odznaka-{{ rezerwacja.kolor_statusu }}">{{ rezerwacja.get_status_display }}</span></td>
+                <td><a href="{% url 'rezerwacja_szczegoly' rezerwacja.id %}" class="btn btn-primary btn-maly">Szczegóły</a></td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="9" style="text-align: center; color: var(--text-muted);">Brak rezerwacji</td>
+                <td colspan="11" style="text-align: center; color: var(--text-muted);">Brak rezerwacji spełniających kryteria</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -41,5 +89,9 @@
 </div>
 <script>initTabela({ tableId: 'tabela-rezerwacje', tabela: 'rezerwacje', akcje: [
     { label: 'Szczegóły', url: '/rezerwacje/{id}/' },
-    { label: 'Edytuj', url: '/rezerwacje/{id}/edytuj/' }
+{% if uprawnienia.operacje %}
+    { label: 'Edytuj', url: '/rezerwacje/{id}/edytuj/' },
+    { label: 'Wydanie', url: '/rezerwacje/{id}/wydanie/' },
+    { label: 'Zwrot', url: '/rezerwacje/{id}/zwrot/' }
+{% endif %}
 ] });</script>

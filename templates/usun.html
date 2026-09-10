@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Usuń {{ nazwa }}{% endblock %}
+{% block content %}
+<h1 class="page-title">Usuń {{ nazwa }}</h1>
+
+<div class="card potwierdzenie">
+    <div class="alert alert-ostrzezenie">Tej operacji nie da się cofnąć.</div>
+
+    <p class="potwierdzenie-pytanie">
+        Czy na pewno usunąć {{ nazwa }} <strong>{{ obiekt }}</strong>?
+    </p>
+
+    {% if powiazania %}
+    <div class="potwierdzenie-powiazania">
+        <span>Razem z rekordem zostaną usunięte lub odpięte</span>
+        <ul>
+            {% for opis in powiazania %}<li>{{ opis }}</li>{% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <form method="post" action="{{ akcja_url }}" class="form-akcje">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Tak, usuń</button>
+        <a href="{{ powrot_url }}" class="btn btn-secondary">Anuluj</a>
+    </form>
+</div>
+{% endblock %}

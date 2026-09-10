@@ -1,7 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Kontrahent, UzytkownikPojazdu
-from .forms import KontrahentForm, UzytkownikPojazduForm
-from serwis.views import widok_szczegolow
+from django.contrib import messages
+
+from .forms import KontrahentForm, UzytkownikPojazduForm, DodatkoweKontaktyFormSet
+from flota_project.wspolne import widok_szczegolow, url_usuwania
+from administracja.uprawnienia import OPERACJE, wymaga
 
 
 def adres_tekst(obj):
@@ -17,15 +20,32 @@ def kontrahenci(request):
     return render(request, template, {'kontrahenci': kontrahenci})
 
 
-def dodaj_kontrahenta(request):
+def _formularz_kontrahenta(request, kontrahent=None):
+    """Wspolna obsluga dodawania i edycji wraz z dodatkowymi kontaktami."""
     if request.method == 'POST':
-        form = KontrahentForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('kontrahenci')
+        form = KontrahentForm(request.POST, instance=kontrahent)
+        formset = DodatkoweKontaktyFormSet(request.POST, instance=kontrahent)
+        if form.is_valid() and formset.is_valid():
+            obiekt = form.save()
+            formset.instance = obiekt
+            formset.save()
+            messages.success(request, f'Zapisano kontrahenta: {obiekt.nazwa_firmy}.')
+            return redirect('kontrahent_szczegoly', pk=obiekt.pk)
     else:
-        form = KontrahentForm()
-    return render(request, 'kontrahenci/dodaj_kontrahenta.html', {'form': form})
+        form = KontrahentForm(instance=kontrahent)
+        formset = DodatkoweKontaktyFormSet(instance=kontrahent)
+
+    return render(request, 'kontrahenci/dodaj_kontrahenta.html', {
+        'form': form,
+        'formset': formset,
+        'tytul': f'Edytuj kontrahenta: {kontrahent.nazwa_firmy}' if kontrahent else 'Dodaj kontrahenta',
+        'przycisk': 'Zapisz zmiany' if kontrahent else 'Zapisz',
+    })
+
+
+@wymaga(OPERACJE)
+def dodaj_kontrahenta(request):
+    return _formularz_kontrahenta(request)
 
 
 def kontrahent_szczegoly(request, pk):
@@ -62,19 +82,30 @@ def kontrahent_szczegoly(request, pk):
             (f"{kontakt.get_typ_display()}{f' ({kontakt.opis})' if kontakt.opis else ''}", kontakt.wartosc)
             for kontakt in kontakty
         ]})
-    return widok_szczegolow(request, k.nazwa_firmy, sekcje, f'/kontrahenci/{pk}/edytuj/', '/kontrahenci/')
+
+    rezerwacje = list(k.rezerwacje.select_related('pojazd', 'klasa_pojazdu')[:10])
+    if rezerwacje:
+        sekcje.append({'naglowek': f'Rezerwacje ({k.rezerwacje.count()})', 'pola': [
+            (
+                f'{r.numer} · {r.get_status_display()}',
+                f'{r.planowana_data_wydania:%d.%m.%Y} – {r.planowana_data_zwrotu:%d.%m.%Y}, '
+                f'{r.pojazd.numer_rejestracyjny if r.pojazd else r.klasa_pojazdu}',
+                f'/rezerwacje/{r.pk}/',
+            ) for r in rezerwacje
+        ]})
+
+    cenniki = list(k.cenniki.all())
+    if cenniki:
+        sekcje.append({'naglowek': 'Cenniki', 'pola': [
+            (c.nazwa, f'{c.get_typ_stawki_display()}, {c.waluta}', f'/cenniki/{c.pk}/') for c in cenniki
+        ]})
+
+    return widok_szczegolow(request, k.nazwa_firmy, sekcje, f'/kontrahenci/{pk}/edytuj/', '/kontrahenci/', usun_url=url_usuwania('kontrahent', pk), uprawnienie_edycji=OPERACJE)
 
 
+@wymaga(OPERACJE)
 def edytuj_kontrahenta(request, pk):
-    kontrahent = get_object_or_404(Kontrahent, pk=pk)
-    if request.method == 'POST':
-        form = KontrahentForm(request.POST, instance=kontrahent)
-        if form.is_valid():
-            form.save()
-            return redirect('kontrahenci')
-    else:
-        form = KontrahentForm(instance=kontrahent)
-    return render(request, 'kontrahenci/dodaj_kontrahenta.html', {'form': form, 'tytul': f'Edytuj kontrahenta: {kontrahent.nazwa_firmy}', 'przycisk': 'Zapisz zmiany'})
+    return _formularz_kontrahenta(request, get_object_or_404(Kontrahent, pk=pk))
 
 
 def uzytkownicy_pojazdow(request):
@@ -83,6 +114,7 @@ def uzytkownicy_pojazdow(request):
     return render(request, template, {'uzytkownicy': uzytkownicy})
 
 
+@wymaga(OPERACJE)
 def dodaj_uzytkownika_pojazdu(request):
     if request.method == 'POST':
         form = UzytkownikPojazduForm(request.POST)
@@ -111,9 +143,10 @@ def uzytkownik_pojazdu_szczegoly(request, pk):
             ('Ważność prawa jazdy', u.data_waznosci_prawa_jazdy),
         ]},
     ]
-    return widok_szczegolow(request, f'{u.imie} {u.nazwisko}', sekcje, f'/uzytkownicy-pojazdow/{pk}/edytuj/', '/uzytkownicy-pojazdow/')
+    return widok_szczegolow(request, f'{u.imie} {u.nazwisko}', sekcje, f'/uzytkownicy-pojazdow/{pk}/edytuj/', '/uzytkownicy-pojazdow/', usun_url=url_usuwania('uzytkownik-pojazdu', pk), uprawnienie_edycji=OPERACJE)
 
 
+@wymaga(OPERACJE)
 def edytuj_uzytkownika_pojazdu(request, pk):
     uzytkownik = get_object_or_404(UzytkownikPojazdu, pk=pk)
     if request.method == 'POST':

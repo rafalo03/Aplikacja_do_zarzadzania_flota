@@ -1,6 +1,9 @@
 <div class="form-group{% if pelna %} pelna{% endif %}">
     <label>{{ field.label }}{% if field.field.required %} <span class="wymagane">*</span>{% endif %}</label>
     {{ field }}
+    {% if field.help_text %}
+    <p class="pole-podpowiedz">{{ field.help_text|safe }}</p>
+    {% endif %}
     {% if field.errors %}
     <p class="form-error">{{ field.errors.0 }}</p>
     {% endif %}

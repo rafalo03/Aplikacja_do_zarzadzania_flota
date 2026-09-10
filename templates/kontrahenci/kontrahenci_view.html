@@ -2,7 +2,7 @@
 <div class="card">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <h3>Wszyscy kontrahenci ({{ kontrahenci.count }})</h3>
-        <a href="{% url 'dodaj_kontrahenta' %}" class="btn btn-primary">+ Dodaj kontrahenta</a>
+        {% if uprawnienia.operacje %}<a href="{% url 'dodaj_kontrahenta' %}" class="btn btn-primary">+ Dodaj kontrahenta</a>{% endif %}
     </div>
     <table class="table" id="tabela-kontrahenci">
         <thead>

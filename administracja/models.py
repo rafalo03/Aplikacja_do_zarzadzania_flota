@@ -2,8 +2,32 @@ from django.db import models
 from django.contrib.auth.models import User
 
 class ProfilUzytkownika(models.Model):
+    ROLE = [
+        ('administrator', 'Administrator'),
+        ('kierownik', 'Kierownik'),
+        ('pracownik', 'Pracownik'),
+        ('podglad', 'Podgląd'),
+    ]
+
+    OPIS_ROL = {
+        'administrator': 'Pełny dostęp, w tym zarządzanie użytkownikami i oddziałami.',
+        'kierownik': 'Wszystko oprócz administracji; może usuwać rekordy i prowadzić słowniki.',
+        'pracownik': 'Prowadzi rezerwacje, serwis i kontrahentów. Bez usuwania, pojazdów i słowników.',
+        'podglad': 'Tylko odczyt.',
+    }
+
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profil')
     telefon = models.CharField(max_length=20, null=True, blank=True)
+    rola = models.CharField(max_length=20, choices=ROLE, default='pracownik')
+    oddzial = models.ForeignKey(
+        'administracja.Oddzial',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='uzytkownicy',
+        verbose_name='Oddział',
+        help_text='Puste = dostęp do danych wszystkich oddziałów.',
+    )
 
     def __str__(self):
         return f"Profil {self.user.get_full_name()}"

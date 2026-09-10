@@ -1,8 +1,9 @@
 from django import forms
 from .models import ZlecenieSerwisowe, SzkodaBladcharska, Uszkodzenie
 from kontrahenci.models import Kontrahent
+from administracja.uprawnienia import WyborPojazduZOddzialu
 
-class ZlecenieSerwisoweForms(forms.ModelForm):
+class ZlecenieSerwisoweForms(WyborPojazduZOddzialu, forms.ModelForm):
     class Meta:
         model = ZlecenieSerwisowe
         fields = [
@@ -20,7 +21,7 @@ class ZlecenieSerwisoweForms(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['warsztat'].queryset = Kontrahent.objects.filter(typ_serwis=True)
 
-class SzkodaBlacharskaForm(forms.ModelForm):
+class SzkodaBlacharskaForm(WyborPojazduZOddzialu, forms.ModelForm):
     class Meta:
         model = SzkodaBladcharska
         fields = [
@@ -36,7 +37,7 @@ class SzkodaBlacharskaForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['warsztat'].queryset = Kontrahent.objects.filter(typ_serwis=True)
-class UszkodzenieForm(forms.ModelForm):
+class UszkodzenieForm(WyborPojazduZOddzialu, forms.ModelForm):
     class Meta:
         model = Uszkodzenie
         fields = ['pojazd', 'opis', 'zdjecie', 'zglaszajacy', 'naprawione', 'koszt_naprawy']

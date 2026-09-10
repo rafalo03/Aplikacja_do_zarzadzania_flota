@@ -2,7 +2,7 @@
 <div class="card">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
         <h3>Pojazdy ({{ pojazdy.count }})</h3>
-        <a href="{% url 'dodaj_pojazd' %}" class="btn btn-primary">+ Dodaj pojazd</a>
+        {% if uprawnienia.flota %}<a href="{% url 'dodaj_pojazd' %}" class="btn btn-primary">+ Dodaj pojazd</a>{% endif %}
     </div>
     <table class="table" id="tabela-pojazdow">
         <thead>

@@ -1,22 +1,126 @@
-<div class="card">
-    <h2>Statystyki</h2>
+<div class="naglowek-strony">
+    <h1 class="page-title">Pulpit</h1>
+    <div class="pasek-akcji">
+        <a href="/rezerwacje/kalendarz/" class="btn btn-secondary"
+           hx-get="/rezerwacje/kalendarz/" hx-target="#main-content" hx-push-url="true">Kalendarz</a>
+        <a href="/rezerwacje/dodaj/" class="btn btn-primary">+ Nowa rezerwacja</a>
+    </div>
 </div>
 
-<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;">
-    <div class="card">
-        <p style="color: var(--text-muted); font-size: 12px; text-transform: uppercase;">Pojazdy</p>
-        <h2 style="font-size: 32px; margin-top: 8px;">{{ liczba_pojazdow }}</h2>
+<div class="kafelki-statystyk">
+    <a class="kafelek-statystyka" href="/pojazdy/" hx-get="/pojazdy/" hx-target="#main-content" hx-push-url="true">
+        <span>Pojazdy</span><strong>{{ liczba_pojazdow }}</strong>
+    </a>
+    <a class="kafelek-statystyka" href="/pojazdy/?status=dostepny" hx-get="/pojazdy/?status=dostepny" hx-target="#main-content" hx-push-url="true">
+        <span>Dostępne</span><strong>{{ liczba_dostepnych }}</strong>
+    </a>
+    <a class="kafelek-statystyka" href="/pojazdy/?status=wynajety" hx-get="/pojazdy/?status=wynajety" hx-target="#main-content" hx-push-url="true">
+        <span>Wynajęte</span><strong>{{ liczba_wynajetych }}</strong>
+    </a>
+    <a class="kafelek-statystyka" href="/pojazdy/?status=serwis" hx-get="/pojazdy/?status=serwis" hx-target="#main-content" hx-push-url="true">
+        <span>W serwisie</span><strong>{{ liczba_w_serwisie }}</strong>
+    </a>
+    <a class="kafelek-statystyka" href="/rezerwacje/?status=aktywne" hx-get="/rezerwacje/?status=aktywne" hx-target="#main-content" hx-push-url="true">
+        <span>Aktywne rezerwacje</span><strong>{{ liczba_rezerwacji }}</strong>
+    </a>
+    <a class="kafelek-statystyka" href="/kontrahenci/" hx-get="/kontrahenci/" hx-target="#main-content" hx-push-url="true">
+        <span>Kontrahenci</span><strong>{{ liczba_kontrahentow }}</strong>
+    </a>
+    <a class="kafelek-statystyka" href="/polisy/" hx-get="/polisy/" hx-target="#main-content" hx-push-url="true">
+        <span>Polisy</span><strong>{{ liczba_polis }}</strong>
+    </a>
+</div>
+
+{% if opoznione %}
+<div class="card" style="margin-bottom: 20px;">
+    <div class="karta-naglowek">
+        <h3>Po terminie zwrotu ({{ opoznione|length }})</h3>
     </div>
+    <table class="table">
+        <thead><tr><th>Numer</th><th>Klient</th><th>Pojazd</th><th>Termin zwrotu</th><th>Akcje</th></tr></thead>
+        <tbody>
+            {% for r in opoznione %}
+            <tr>
+                <td>{{ r.numer }}</td>
+                <td>{{ r.klient }}</td>
+                <td>{{ r.pojazd.numer_rejestracyjny|default:"—" }}</td>
+                <td><span class="odznaka odznaka-blad">{{ r.planowana_data_zwrotu|date:"d.m.Y H:i" }}</span></td>
+                <td><a href="/rezerwacje/{{ r.id }}/zwrot/" class="btn btn-primary btn-maly">Przyjmij zwrot</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+<div class="pulpit-kolumny">
     <div class="card">
-        <p style="color: var(--text-muted); font-size: 12px; text-transform: uppercase;">Rezerwacje</p>
-        <h2 style="font-size: 32px; margin-top: 8px;">{{ liczba_rezerwacji }}</h2>
+        <div class="karta-naglowek">
+            <h3>Najbliższe wydania (7 dni)</h3>
+            <a href="/rezerwacje/?status=potwierdzona" class="btn btn-secondary btn-maly"
+               hx-get="/rezerwacje/?status=potwierdzona" hx-target="#main-content" hx-push-url="true">Wszystkie</a>
+        </div>
+        <table class="table">
+            <thead><tr><th>Numer</th><th>Klient</th><th>Pojazd</th><th>Termin</th><th>Akcje</th></tr></thead>
+            <tbody>
+                {% for r in nadchodzace_wydania %}
+                <tr>
+                    <td>{{ r.numer }}</td>
+                    <td>{{ r.klient }}</td>
+                    <td>{{ r.pojazd.numer_rejestracyjny|default:r.klasa_pojazdu }}</td>
+                    <td>{{ r.planowana_data_wydania|date:"d.m H:i" }}</td>
+                    <td><a href="/rezerwacje/{{ r.id }}/wydanie/" class="btn btn-primary btn-maly">Wydaj</a></td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" style="text-align: center; color: var(--text-muted);">Brak zaplanowanych wydań</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
+
     <div class="card">
-        <p style="color: var(--text-muted); font-size: 12px; text-transform: uppercase;">Kontrahenci</p>
-        <h2 style="font-size: 32px; margin-top: 8px;">0</h2>
+        <div class="karta-naglowek">
+            <h3>Najbliższe zwroty</h3>
+            <a href="/rezerwacje/?status=w_toku" class="btn btn-secondary btn-maly"
+               hx-get="/rezerwacje/?status=w_toku" hx-target="#main-content" hx-push-url="true">Wszystkie</a>
+        </div>
+        <table class="table">
+            <thead><tr><th>Numer</th><th>Klient</th><th>Pojazd</th><th>Termin</th><th>Akcje</th></tr></thead>
+            <tbody>
+                {% for r in nadchodzace_zwroty %}
+                <tr>
+                    <td>{{ r.numer }}</td>
+                    <td>{{ r.klient }}</td>
+                    <td>{{ r.pojazd.numer_rejestracyjny|default:"—" }}</td>
+                    <td>{{ r.planowana_data_zwrotu|date:"d.m H:i" }}</td>
+                    <td><a href="/rezerwacje/{{ r.id }}/zwrot/" class="btn btn-primary btn-maly">Zwrot</a></td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" style="text-align: center; color: var(--text-muted);">Brak zwrotów w najbliższym czasie</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
+
     <div class="card">
-        <p style="color: var(--text-muted); font-size: 12px; text-transform: uppercase;">Polisy</p>
-        <h2 style="font-size: 32px; margin-top: 8px;">{{ liczba_polis }}</h2>
+        <div class="karta-naglowek">
+            <h3>Polisy wygasające (30 dni)</h3>
+            <a href="/polisy/" class="btn btn-secondary btn-maly"
+               hx-get="/polisy/" hx-target="#main-content" hx-push-url="true">Wszystkie</a>
+        </div>
+        <table class="table">
+            <thead><tr><th>Numer</th><th>Pojazd</th><th>Wygasa</th></tr></thead>
+            <tbody>
+                {% for p in wygasajace_polisy %}
+                <tr>
+                    <td><a href="/polisy/{{ p.id }}/">{{ p.numer_polisy }}</a></td>
+                    <td>{{ p.pojazd.numer_rejestracyjny }}</td>
+                    <td><span class="odznaka odznaka-uwaga">{{ p.data_do|date:"d.m.Y" }}</span></td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="3" style="text-align: center; color: var(--text-muted);">Żadna polisa nie wygasa w ciągu 30 dni</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>

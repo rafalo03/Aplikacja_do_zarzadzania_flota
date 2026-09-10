@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}{{ tytul }}{% endblock %}
+{% block content %}
+<h1 class="page-title">{{ tytul }}</h1>
+
+<div class="protokol">
+    <section class="card">
+        <form method="post">
+            {% csrf_token %}
+            <p class="protokol-opis">{{ opis }}</p>
+            {% if form.non_field_errors %}
+            <div class="alert alert-blad">{{ form.non_field_errors.0 }}</div>
+            {% endif %}
+
+            <div class="form-grid">
+                {% for field in form %}
+                {% include 'pojazdy/_pole.html' with field=field %}
+                {% endfor %}
+            </div>
+
+            <div class="form-akcje">
+                <button type="submit" class="btn btn-primary">{{ przycisk }}</button>
+                <a href="{% url 'rezerwacja_szczegoly' rezerwacja.pk %}" class="btn btn-secondary">Anuluj</a>
+            </div>
+        </form>
+    </section>
+
+    <aside class="card protokol-podsumowanie">
+        <h3>{{ rezerwacja.numer }}</h3>
+        <dl>
+            <div><dt>Klient</dt><dd>{{ rezerwacja.klient }}</dd></div>
+            <div><dt>Użytkownik</dt><dd>{{ rezerwacja.uzytkownik_pojazdu }}</dd></div>
+            <div><dt>Klasa</dt><dd>{{ rezerwacja.klasa_pojazdu }}</dd></div>
+            <div><dt>Pojazd</dt><dd>{{ rezerwacja.pojazd|default:"—" }}</dd></div>
+            <div><dt>Plan. wydanie</dt><dd>{{ rezerwacja.planowana_data_wydania|date:"d.m.Y H:i" }}</dd></div>
+            <div><dt>Plan. zwrot</dt><dd>{{ rezerwacja.planowana_data_zwrotu|date:"d.m.Y H:i" }}</dd></div>
+            {% if rezerwacja.faktyczna_data_wydania %}
+            <div><dt>Wydano</dt><dd>{{ rezerwacja.faktyczna_data_wydania|date:"d.m.Y H:i" }}</dd></div>
+            <div><dt>Licznik przy wydaniu</dt><dd>{{ rezerwacja.przebieg_wydania }} km</dd></div>
+            {% endif %}
+            <div><dt>Stawka</dt><dd>{% if rezerwacja.cena_jednostkowa %}{{ rezerwacja.cena_jednostkowa }} {{ rezerwacja.waluta }}{% else %}—{% endif %}</dd></div>
+            <div><dt>Wartość</dt><dd>{% if rezerwacja.wartosc_calkowita %}{{ rezerwacja.wartosc_calkowita }} {{ rezerwacja.waluta }}{% else %}—{% endif %}</dd></div>
+        </dl>
+        {% if rezerwacja.adres_podstawienia %}
+        <p class="protokol-adres"><span>Podstawienie</span>{{ rezerwacja.adres_podstawienia }}</p>
+        {% endif %}
+        {% if rezerwacja.adres_zwrotu %}
+        <p class="protokol-adres"><span>Adres zwrotu</span>{{ rezerwacja.adres_zwrotu }}</p>
+        {% endif %}
+    </aside>
+</div>
+{% endblock %}

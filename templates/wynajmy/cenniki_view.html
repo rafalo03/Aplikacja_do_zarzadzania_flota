@@ -2,7 +2,7 @@
 <div class="card">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <h3>Wszystkie cenniki ({{ cenniki.count }})</h3>
-        <a href="{% url 'dodaj_cennik' %}" class="btn btn-primary">+ Dodaj cennik</a>
+        {% if uprawnienia.slowniki %}<a href="{% url 'dodaj_cennik' %}" class="btn btn-primary">+ Dodaj cennik</a>{% endif %}
     </div>
     <table class="table" id="tabela-cenniki">
         <thead>
@@ -35,5 +35,7 @@
 </div>
 <script>initTabela({ tableId: 'tabela-cenniki', tabela: 'cenniki', akcje: [
     { label: 'Szczegóły', url: '/cenniki/{id}/' },
+{% if uprawnienia.slowniki %}
     { label: 'Edytuj', url: '/cenniki/{id}/edytuj/' }
+{% endif %}
 ] });</script>

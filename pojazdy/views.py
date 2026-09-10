@@ -1,12 +1,18 @@
 import json
 
-from django.http import JsonResponse
+from django.http import Http404, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import PojazdForm, PolisaForm, MarkaForm, ModelPojazduForm, KlasaPojazduForm, KonfiguracjaForm
 from .models import Pojazd, Polisa, Marka, ModelPojazdu, KlasaPojazdu, Konfiguracja
+from flota_project.wspolne import widok_szczegolow, tak_nie, url_usuwania
+from administracja.uprawnienia import (
+    FLOTA, SLOWNIKI, wymaga, filtruj_pojazdy, filtruj_po_pojezdzie, widzi_pojazd,
+)
 
 def pojazdy(request):
-    pojazdy = Pojazd.objects.all().select_related('konfiguracja__model__marka')
+    pojazdy = filtruj_pojazdy(
+        Pojazd.objects.select_related('konfiguracja__model__marka', 'oddzial'), request.user
+    )
 
     szukaj = request.GET.get('szukaj', '')
     status = request.GET.get('status', '')
@@ -30,6 +36,7 @@ def pojazdy(request):
         'stan': stan,
     })
 
+@wymaga(FLOTA)
 def dodaj_pojazd(request):
     if request.method == 'POST':
         form = PojazdForm(request.POST)
@@ -66,12 +73,23 @@ def pojazd_szczegoly(request, pk):
         ),
         pk=pk,
     )
-    polisy = pojazd.polisy.all()
+    if not widzi_pojazd(request.user, pojazd):
+        raise Http404('Pojazd należy do innego oddziału.')
     template = 'pojazdy/pojazd_szczegoly_view.html' if request.headers.get('HX-Request') else 'pojazdy/pojazd_szczegoly.html'
-    return render(request, template, {'pojazd': pojazd, 'polisy': polisy})
+    return render(request, template, {
+        'pojazd': pojazd,
+        'polisy': pojazd.polisy.all(),
+        'rezerwacje': pojazd.rezerwacje.select_related('klient', 'uzytkownik_pojazdu')[:10],
+        'zlecenia': pojazd.zlecenia_serwisowe.select_related('warsztat')[:10],
+        'szkody': pojazd.szkody.select_related('warsztat')[:10],
+        'uszkodzenia': pojazd.uszkodzenia.all()[:10],
+    })
 
+@wymaga(FLOTA)
 def edytuj_pojazd(request, pk):
     pojazd = get_object_or_404(Pojazd, pk=pk)
+    if not widzi_pojazd(request.user, pojazd):
+        raise Http404('Pojazd należy do innego oddziału.')
     if request.method == 'POST':
         form = PojazdForm(request.POST, instance=pojazd)
         if form.is_valid():
@@ -82,10 +100,13 @@ def edytuj_pojazd(request, pk):
     konfiguracje = Konfiguracja.objects.select_related('model__marka', 'klasa_pojazdu')
     return render(request, 'pojazdy/edytuj_pojazd.html', {'form': form, 'pojazd': pojazd, 'konfiguracje': konfiguracje})
 
+@wymaga(FLOTA)
 def zmien_stan_pojazdu(request, pk):
     if request.method != 'POST':
         return JsonResponse({'ok': False}, status=405)
     pojazd = get_object_or_404(Pojazd, pk=pk)
+    if not widzi_pojazd(request.user, pojazd):
+        return JsonResponse({'ok': False, 'blad': 'Brak dostępu do pojazdu'}, status=404)
     try:
         dane = json.loads(request.body)
     except (ValueError, TypeError):
@@ -98,10 +119,13 @@ def zmien_stan_pojazdu(request, pk):
     return JsonResponse({'ok': True})
 
 def polisy(request):
-    polisy = Polisa.objects.all().select_related('pojazd__konfiguracja__model__marka')
+    polisy = filtruj_po_pojezdzie(
+        Polisa.objects.select_related('pojazd__konfiguracja__model__marka'), request.user
+    )
     template = 'pojazdy/polisy_view.html' if request.headers.get('HX-Request') else 'pojazdy/polisy.html'
     return render(request, template, {'polisy': polisy})
 
+@wymaga(FLOTA)
 def dodaj_polise(request):
     if request.method == 'POST':
         form = PolisaForm(request.POST, request.FILES)
@@ -117,6 +141,7 @@ def marki(request):
     template = 'pojazdy/marki_view.html' if request.headers.get('HX-Request') else 'pojazdy/marki.html'
     return render(request, template, {'marki': marki})
 
+@wymaga(SLOWNIKI)
 def dodaj_marke(request):
     if request.method == 'POST':
         form = MarkaForm(request.POST)
@@ -132,6 +157,7 @@ def modele(request):
     template = 'pojazdy/modele_view.html' if request.headers.get('HX-Request') else 'pojazdy/modele.html'
     return render(request, template, {'modele': modele})
 
+@wymaga(SLOWNIKI)
 def dodaj_model(request):
     if request.method == 'POST':
         form = ModelPojazduForm(request.POST)
@@ -147,6 +173,7 @@ def klasy(request):
     template = 'pojazdy/klasy_view.html' if request.headers.get('HX-Request') else 'pojazdy/klasy.html'
     return render(request, template, {'klasy': klasy})
 
+@wymaga(SLOWNIKI)
 def dodaj_klase(request):
     if request.method == 'POST':
         form = KlasaPojazduForm(request.POST)
@@ -162,6 +189,7 @@ def konfiguracje(request):
     template = 'pojazdy/konfiguracje_view.html' if request.headers.get('HX-Request') else 'pojazdy/konfiguracje.html'
     return render(request, template, {'konfiguracje': konfiguracje})
 
+@wymaga(SLOWNIKI)
 def dodaj_konfiguracje(request):
     if request.method == 'POST':
         form = KonfiguracjaForm(request.POST)
@@ -172,6 +200,7 @@ def dodaj_konfiguracje(request):
         form = KonfiguracjaForm()
     return render(request, 'pojazdy/dodaj_konfiguracje.html', {'form': form})
 
+@wymaga(SLOWNIKI)
 def edytuj_konfiguracje(request, pk):
     konfiguracja = get_object_or_404(Konfiguracja, pk=pk)
     if request.method == 'POST':
@@ -183,13 +212,6 @@ def edytuj_konfiguracje(request, pk):
         form = KonfiguracjaForm(instance=konfiguracja)
     return render(request, 'pojazdy/edytuj_konfiguracje.html', {'form': form, 'konfiguracja': konfiguracja})
 
-def widok_szczegolow(request, tytul, sekcje, edytuj_url=None, powrot_url=None):
-    template = 'szczegoly_view.html' if request.headers.get('HX-Request') else 'szczegoly.html'
-    return render(request, template, {'tytul': tytul, 'sekcje': sekcje, 'edytuj_url': edytuj_url, 'powrot_url': powrot_url})
-
-def tak_nie(wartosc):
-    return 'Tak' if wartosc else 'Nie'
-
 def marka_szczegoly(request, pk):
     marka = get_object_or_404(Marka, pk=pk)
     modele_marki = ', '.join(m.nazwa for m in marka.modele.all())
@@ -198,8 +220,9 @@ def marka_szczegoly(request, pk):
         ('Liczba modeli', marka.modele.count()),
         ('Modele', modele_marki),
     ]}]
-    return widok_szczegolow(request, f'Marka — {marka.nazwa}', sekcje, f'/marki/{pk}/edytuj/', '/marki/')
+    return widok_szczegolow(request, f'Marka — {marka.nazwa}', sekcje, f'/marki/{pk}/edytuj/', '/marki/', usun_url=url_usuwania('marka', pk), uprawnienie_edycji=SLOWNIKI)
 
+@wymaga(SLOWNIKI)
 def edytuj_marke(request, pk):
     marka = get_object_or_404(Marka, pk=pk)
     if request.method == 'POST':
@@ -218,8 +241,9 @@ def model_szczegoly(request, pk):
         ('Model', model.nazwa),
         ('Liczba konfiguracji', model.konfiguracje.count()),
     ]}]
-    return widok_szczegolow(request, f'Model — {model}', sekcje, f'/modele/{pk}/edytuj/', '/modele/')
+    return widok_szczegolow(request, f'Model — {model}', sekcje, f'/modele/{pk}/edytuj/', '/modele/', usun_url=url_usuwania('model', pk), uprawnienie_edycji=SLOWNIKI)
 
+@wymaga(SLOWNIKI)
 def edytuj_model(request, pk):
     model = get_object_or_404(ModelPojazdu, pk=pk)
     if request.method == 'POST':
@@ -238,8 +262,9 @@ def klasa_szczegoly(request, pk):
         ('Opis', klasa.opis),
         ('Liczba konfiguracji', klasa.konfiguracja_set.count()),
     ]}]
-    return widok_szczegolow(request, f'Klasa — {klasa.nazwa}', sekcje, f'/klasy/{pk}/edytuj/', '/klasy/')
+    return widok_szczegolow(request, f'Klasa — {klasa.nazwa}', sekcje, f'/klasy/{pk}/edytuj/', '/klasy/', usun_url=url_usuwania('klasa', pk), uprawnienie_edycji=SLOWNIKI)
 
+@wymaga(SLOWNIKI)
 def edytuj_klase(request, pk):
     klasa = get_object_or_404(KlasaPojazdu, pk=pk)
     if request.method == 'POST':
@@ -278,10 +303,12 @@ def konfiguracja_szczegoly(request, pk):
             ('Liczba pojazdów', k.pojazdy.count()),
         ]},
     ]
-    return widok_szczegolow(request, f'Konfiguracja — {k}', sekcje, f'/konfiguracje/{pk}/edytuj/', '/konfiguracje/')
+    return widok_szczegolow(request, f'Konfiguracja — {k}', sekcje, f'/konfiguracje/{pk}/edytuj/', '/konfiguracje/', usun_url=url_usuwania('konfiguracja', pk), uprawnienie_edycji=SLOWNIKI)
 
 def polisa_szczegoly(request, pk):
     polisa = get_object_or_404(Polisa.objects.select_related('pojazd__konfiguracja__model__marka'), pk=pk)
+    if not widzi_pojazd(request.user, polisa.pojazd):
+        raise Http404('Polisa dotyczy pojazdu z innego oddziału.')
     zakres = ', '.join(n for n, w in [('OC', polisa.rodzaj_oc), ('AC', polisa.rodzaj_ac), ('NNW', polisa.rodzaj_nnw), ('Assistance', polisa.rodzaj_assistance)] if w)
     sekcje = [{'naglowek': 'Dane polisy', 'pola': [
         ('Pojazd', str(polisa.pojazd), f'/pojazdy/{polisa.pojazd_id}/'),
@@ -294,10 +321,13 @@ def polisa_szczegoly(request, pk):
         ('Skan', 'Pobierz' if polisa.skan else None, polisa.skan.url if polisa.skan else None),
         ('Uwagi', polisa.uwagi),
     ]}]
-    return widok_szczegolow(request, f'Polisa — {polisa.numer_polisy}', sekcje, f'/polisy/{pk}/edytuj/', '/polisy/')
+    return widok_szczegolow(request, f'Polisa — {polisa.numer_polisy}', sekcje, f'/polisy/{pk}/edytuj/', '/polisy/', usun_url=url_usuwania('polisa', pk), uprawnienie_edycji=FLOTA)
 
+@wymaga(FLOTA)
 def edytuj_polise(request, pk):
     polisa = get_object_or_404(Polisa, pk=pk)
+    if not widzi_pojazd(request.user, polisa.pojazd):
+        raise Http404('Polisa dotyczy pojazdu z innego oddziału.')
     if request.method == 'POST':
         form = PolisaForm(request.POST, request.FILES, instance=polisa)
         if form.is_valid():

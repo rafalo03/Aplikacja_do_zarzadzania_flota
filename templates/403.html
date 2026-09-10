@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block title %}Brak uprawnień{% endblock %}
+{% block content %}
+<h1 class="page-title">Brak uprawnień</h1>
+
+<div class="card potwierdzenie">
+    <div class="alert alert-blad">
+        {{ exception|default:"Twoja rola nie pozwala na wykonanie tej operacji." }}
+    </div>
+    <p class="potwierdzenie-pytanie">
+        Jesteś zalogowany jako <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>
+        z rolą <span class="odznaka odznaka-neutralny">{{ uprawnienia.rola }}</span>.
+        Jeśli potrzebujesz szerszego dostępu, poproś administratora o zmianę roli.
+    </p>
+    <div class="form-akcje">
+        <a href="/" class="btn btn-primary">Wróć na pulpit</a>
+    </div>
+</div>
+{% endblock %}

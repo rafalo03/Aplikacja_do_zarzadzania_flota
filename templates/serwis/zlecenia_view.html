@@ -1,37 +1,54 @@
-<h1 class="page-title">Zlecenia serwisowe</h1>
+<div class="naglowek-strony">
+    <h1 class="page-title">Zlecenia serwisowe</h1>
+    {% if uprawnienia.operacje %}<a href="{% url 'dodaj_zlecenie' %}" class="btn btn-primary">+ Dodaj zlecenie</a>{% endif %}
+</div>
+
 <div class="card">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h3>Wszystkie zlecenia ({{ zlecenia.count }})</h3>
-        <a href="{% url 'dodaj_zlecenie' %}" class="btn btn-primary">+ Dodaj zlecenie</a>
-    </div>
+    <form method="get" class="pasek-filtrow">
+        <input type="search" name="szukaj" value="{{ szukaj }}" class="filter-input"
+               placeholder="Rejestracja, warsztat, opis…">
+        <select name="status" class="filter-select">
+            <option value="">Wszystkie statusy</option>
+            {% for wartosc, etykieta in statusy %}
+            <option value="{{ wartosc }}" {% if status == wartosc %}selected{% endif %}>{{ etykieta }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-primary">Filtruj</button>
+        <a href="{% url 'zlecenia' %}" class="btn btn-secondary">Wyczyść</a>
+    </form>
+
+    <h3 style="margin-bottom: 16px;">Znalezione zlecenia ({{ zlecenia.count }})</h3>
+
     <table class="table" id="tabela-zlecenia">
         <thead>
             <tr>
+                <th>Nr</th>
                 <th>Pojazd</th>
                 <th>Typ</th>
                 <th>Warsztat</th>
                 <th>Data przyjęcia</th>
                 <th>Planowane zakończenie</th>
-                <th>Status</th>
                 <th>Koszt netto</th>
+                <th>Status</th>
                 <th>Akcje</th>
             </tr>
         </thead>
         <tbody>
             {% for zlecenie in zlecenia %}
             <tr data-id="{{ zlecenie.id }}">
-                <td>{{ zlecenie.pojazd }}</td>
+                <td>{{ zlecenie.id }}</td>
+                <td>{{ zlecenie.pojazd.numer_rejestracyjny }}</td>
                 <td>{{ zlecenie.get_typ_display }}</td>
-                <td>{{ zlecenie.warsztat|default:"-" }}</td>
-                <td>{{ zlecenie.data_przyjecia }}</td>
-                <td>{{ zlecenie.planowana_data_zakonczenia|default:"-" }}</td>
-                <td>{{ zlecenie.get_status_display }}</td>
-                <td>{{ zlecenie.rzeczywisty_koszt_netto|default:zlecenie.planowany_koszt_netto|default:"-" }}</td>
-                <td><a href="{% url 'zlecenie_szczegoly' zlecenie.id %}" class="btn btn-primary" style="font-size: 12px; padding: 4px 10px;">Szczegóły</a></td>
+                <td>{{ zlecenie.warsztat|default:"—" }}</td>
+                <td>{{ zlecenie.data_przyjecia|date:"d.m.Y" }}</td>
+                <td>{{ zlecenie.planowana_data_zakonczenia|date:"d.m.Y"|default:"—" }}</td>
+                <td>{{ zlecenie.koszt|default:"—" }}</td>
+                <td><span class="odznaka odznaka-{{ zlecenie.kolor_statusu }}">{{ zlecenie.get_status_display }}</span></td>
+                <td><a href="{% url 'zlecenie_szczegoly' zlecenie.id %}" class="btn btn-primary btn-maly">Szczegóły</a></td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="8" style="text-align: center; color: var(--text-muted);">Brak zleceń</td>
+                <td colspan="9" style="text-align: center; color: var(--text-muted);">Brak zleceń spełniających kryteria</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -39,5 +56,7 @@
 </div>
 <script>initTabela({ tableId: 'tabela-zlecenia', tabela: 'zlecenia', akcje: [
     { label: 'Szczegóły', url: '/zlecenia/{id}/' },
+{% if uprawnienia.operacje %}
     { label: 'Edytuj', url: '/zlecenia/{id}/edytuj/' }
+{% endif %}
 ] });</script>

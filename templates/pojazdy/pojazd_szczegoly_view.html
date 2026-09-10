@@ -4,7 +4,8 @@
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
         <h3>Dane pojazdu</h3>
         <div style="display: flex; gap: 12px;">
-            <a href="{% url 'edytuj_pojazd' pojazd.id %}" class="btn btn-primary">Edytuj</a>
+            {% if uprawnienia.flota %}<a href="{% url 'edytuj_pojazd' pojazd.id %}" class="btn btn-primary">Edytuj</a>{% endif %}
+            {% if uprawnienia.usuwanie %}<a href="{% url 'usun_obiekt' 'pojazd' pojazd.id %}" class="btn btn-danger">Usuń</a>{% endif %}
             <a href="{% url 'pojazdy' %}" class="btn btn-secondary">&larr; Wróć do listy</a>
         </div>
     </div>
@@ -46,6 +47,43 @@
     </div>
 </div>
 
+<div class="card" style="margin-bottom: 20px;">
+    <div class="karta-naglowek">
+        <h3>Rezerwacje ({{ rezerwacje|length }})</h3>
+        {% if uprawnienia.operacje %}<a href="{% url 'dodaj_rezerwacje' %}" class="btn btn-primary btn-maly">+ Nowa rezerwacja</a>{% endif %}
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Numer</th>
+                <th>Klient</th>
+                <th>Użytkownik</th>
+                <th>Wydanie</th>
+                <th>Zwrot</th>
+                <th>Status</th>
+                <th>Akcje</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in rezerwacje %}
+            <tr>
+                <td>{{ r.numer }}</td>
+                <td>{{ r.klient }}</td>
+                <td>{{ r.uzytkownik_pojazdu }}</td>
+                <td>{{ r.planowana_data_wydania|date:"d.m.Y H:i" }}</td>
+                <td>{{ r.planowana_data_zwrotu|date:"d.m.Y H:i" }}</td>
+                <td><span class="odznaka odznaka-{{ r.kolor_statusu }}">{{ r.get_status_display }}</span></td>
+                <td><a href="{% url 'rezerwacja_szczegoly' r.id %}" class="btn btn-primary btn-maly">Szczegóły</a></td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" style="text-align: center; color: var(--text-muted);">Brak rezerwacji tego pojazdu</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
 <div class="card">
     <h3 style="margin-bottom: 16px;">Polisy ({{ polisy|length }})</h3>
     <table class="table">
@@ -56,6 +94,7 @@
                 <th>Ubezpieczyciel</th>
                 <th>Od</th>
                 <th>Do</th>
+                <th>Skan</th>
             </tr>
         </thead>
         <tbody>
@@ -64,13 +103,95 @@
                 <td>{{ polisa.numer_polisy }}</td>
                 <td>{% if polisa.rodzaj_oc %}OC {% endif %}{% if polisa.rodzaj_ac %}AC {% endif %}{% if polisa.rodzaj_nnw %}NNW {% endif %}{% if polisa.rodzaj_assistance %}Assistance{% endif %}</td>
                 <td>{{ polisa.ubezpieczyciel|default:"—" }}</td>
-                <td>{{ polisa.data_od }}</td>
-                <td>{{ polisa.data_do }}</td>
+                <td>{{ polisa.data_od|date:"d.m.Y" }}</td>
+                <td>{{ polisa.data_do|date:"d.m.Y" }}</td>
+                <td>{% if polisa.skan %}<a href="{{ polisa.skan.url }}" target="_blank">Pobierz</a>{% else %}—{% endif %}</td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="5" style="text-align: center; color: var(--text-muted);">Brak polis</td>
+                <td colspan="6" style="text-align: center; color: var(--text-muted);">Brak polis</td>
             </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="card" style="margin-bottom: 20px;">
+    <div class="karta-naglowek">
+        <h3>Zlecenia serwisowe ({{ zlecenia|length }})</h3>
+        {% if uprawnienia.operacje %}<a href="{% url 'dodaj_zlecenie' %}?pojazd={{ pojazd.id }}" class="btn btn-primary btn-maly">+ Nowe zlecenie</a>{% endif %}
+    </div>
+    <table class="table">
+        <thead>
+            <tr><th>Nr</th><th>Typ</th><th>Warsztat</th><th>Przyjęcie</th><th>Koszt</th><th>Status</th><th>Akcje</th></tr>
+        </thead>
+        <tbody>
+            {% for z in zlecenia %}
+            <tr>
+                <td>{{ z.id }}</td>
+                <td>{{ z.get_typ_display }}</td>
+                <td>{{ z.warsztat|default:"—" }}</td>
+                <td>{{ z.data_przyjecia|date:"d.m.Y" }}</td>
+                <td>{{ z.koszt|default:"—" }}</td>
+                <td><span class="odznaka odznaka-{{ z.kolor_statusu }}">{{ z.get_status_display }}</span></td>
+                <td><a href="{% url 'zlecenie_szczegoly' z.id %}" class="btn btn-primary btn-maly">Szczegóły</a></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Brak zleceń serwisowych</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="card" style="margin-bottom: 20px;">
+    <div class="karta-naglowek">
+        <h3>Szkody blacharskie ({{ szkody|length }})</h3>
+        {% if uprawnienia.operacje %}<a href="{% url 'dodaj_szkode' %}?pojazd={{ pojazd.id }}" class="btn btn-primary btn-maly">+ Zgłoś szkodę</a>{% endif %}
+    </div>
+    <table class="table">
+        <thead>
+            <tr><th>Nr</th><th>Numer szkody</th><th>Zdarzenie</th><th>Warsztat</th><th>Koszt</th><th>Status</th><th>Akcje</th></tr>
+        </thead>
+        <tbody>
+            {% for s in szkody %}
+            <tr>
+                <td>{{ s.id }}</td>
+                <td>{{ s.numer_szkody|default:"—" }}</td>
+                <td>{{ s.data_zdarzenia|date:"d.m.Y"|default:"—" }}</td>
+                <td>{{ s.warsztat|default:"—" }}</td>
+                <td>{{ s.koszt|default:"—" }}</td>
+                <td><span class="odznaka odznaka-{{ s.kolor_statusu }}">{{ s.get_status_display }}</span></td>
+                <td><a href="{% url 'szkoda_szczegoly' s.id %}" class="btn btn-primary btn-maly">Szczegóły</a></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Brak szkód</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="card">
+    <div class="karta-naglowek">
+        <h3>Uszkodzenia ({{ uszkodzenia|length }})</h3>
+        {% if uprawnienia.operacje %}<a href="{% url 'dodaj_uszkodzenie' %}?pojazd={{ pojazd.id }}" class="btn btn-primary btn-maly">+ Zgłoś uszkodzenie</a>{% endif %}
+    </div>
+    <table class="table">
+        <thead>
+            <tr><th>Nr</th><th>Wykryto</th><th>Opis</th><th>Zgłaszający</th><th>Koszt</th><th>Status</th><th>Akcje</th></tr>
+        </thead>
+        <tbody>
+            {% for u in uszkodzenia %}
+            <tr>
+                <td>{{ u.id }}</td>
+                <td>{{ u.data_wykrycia|date:"d.m.Y" }}</td>
+                <td>{{ u.opis|truncatechars:50 }}</td>
+                <td>{{ u.zglaszajacy|default:"—" }}</td>
+                <td>{{ u.koszt_naprawy|default:"—" }}</td>
+                <td><span class="odznaka odznaka-{{ u.kolor_statusu }}">{{ u.status_opis }}</span></td>
+                <td><a href="{% url 'uszkodzenie_szczegoly' u.id %}" class="btn btn-primary btn-maly">Szczegóły</a></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7" style="text-align: center; color: var(--text-muted);">Brak zgłoszonych uszkodzeń</td></tr>
             {% endfor %}
         </tbody>
     </table>

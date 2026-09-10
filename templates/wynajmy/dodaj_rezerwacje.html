@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
-{% block title %}{{ tytul|default:"Dodaj rezerwację" }}{% endblock %}
+{% block title %}{{ tytul }}{% endblock %}
 {% block content %}
-<h1 class="page-title">{{ tytul|default:"Dodaj rezerwację" }}</h1>
-<form method="post" class="pojazd-form">
+<h1 class="page-title">{{ tytul }}</h1>
+<form method="post" class="pojazd-form" id="formularz-rezerwacji" data-rezerwacja="{{ rezerwacja.pk|default:'' }}">
     {% csrf_token %}
     {% if form.non_field_errors %}
-    <p class="form-error" style="margin-bottom: 16px;">{{ form.non_field_errors.0 }}</p>
+    <div class="alert alert-blad">{{ form.non_field_errors.0 }}</div>
     {% endif %}
 
     <div class="form-kafelki">
@@ -31,8 +31,8 @@
         <section class="kafelek karta-3d">
             <div class="kafelek-header">
                 <div>
-                    <h3>Dane szczegółowe</h3>
-                    <p>Pojazd, cennik i zamiany auta</p>
+                    <h3>Pojazd i wycena</h3>
+                    <p>Klasa, auto, cennik i zamiany</p>
                 </div>
             </div>
             <div class="kafelek-pola">
@@ -47,6 +47,13 @@
                 </div>
                 {% include 'pojazdy/_pole.html' with field=form.cennik %}
                 {% include 'pojazdy/_pole.html' with field=form.cena_jednostkowa %}
+
+                <div class="form-group pelna">
+                    <div class="wycena" id="wycena">
+                        <span class="wycena-etykieta">Wycena</span>
+                        <p id="wycena-tresc">Wybierz klasę pojazdu i terminy — cena podpowie się z cennika.</p>
+                    </div>
+                </div>
 
                 <div class="form-group pelna">
                     <label>Zamiany pojazdu</label>
@@ -116,7 +123,7 @@
     </div>
 
     <div class="form-akcje">
-        <button type="submit" class="btn btn-primary">{{ przycisk|default:"Zapisz" }}</button>
+        <button type="submit" class="btn btn-primary">{{ przycisk }}</button>
         <a href="{% url 'rezerwacje' %}" class="btn btn-secondary">Anuluj</a>
     </div>
 </form>
@@ -128,7 +135,13 @@
             <button type="button" class="modal-zamknij" title="Zamknij">&#10005;</button>
         </div>
         <div class="modal-tresc">
-            <a href="#" id="pojazd-wyczysc" style="display: inline-block; margin-bottom: 12px; font-size: 13px; color: var(--text-muted);">Wyczyść wybór pojazdu</a>
+            <div class="modal-pasek">
+                <a href="#" id="pojazd-wyczysc">Wyczyść wybór pojazdu</a>
+                <label class="modal-przelacznik">
+                    <input type="checkbox" id="tylko-wolne" checked>
+                    Pokaż tylko wolne w wybranym terminie
+                </label>
+            </div>
             <table class="table" id="pojazd-tabela">
                 <thead>
                     <tr>
@@ -139,6 +152,7 @@
                         <th>Status</th>
                         <th>Oddział</th>
                         <th>Przebieg</th>
+                        <th>Dostępność</th>
                     </tr>
                     <tr class="konfig-filtry">
                         <th><input type="text" placeholder="Filtruj..."></th>
@@ -148,11 +162,12 @@
                         <th><input type="text" placeholder="Filtruj..."></th>
                         <th><input type="text" placeholder="Filtruj..."></th>
                         <th><input type="text" placeholder="Filtruj..."></th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for p in pojazdy %}
-                    <tr data-id="{{ p.id }}">
+                    <tr data-id="{{ p.id }}" data-klasa="{{ p.konfiguracja.klasa_pojazdu_id|default_if_none:'' }}">
                         <td>{{ p.numer_rejestracyjny }}</td>
                         <td>{{ p.konfiguracja.model.marka.nazwa }}</td>
                         <td>{{ p.konfiguracja.model.nazwa }}</td>
@@ -160,10 +175,11 @@
                         <td>{{ p.get_status_display }}</td>
                         <td>{{ p.oddzial|default:"-" }}</td>
                         <td>{{ p.przebieg_km }} km</td>
+                        <td class="komorka-dostepnosc"></td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="7" style="text-align: center; color: var(--text-muted);">
+                        <td colspan="8" style="text-align: center; color: var(--text-muted);">
                             Brak pojazdów — <a href="{% url 'dodaj_pojazd' %}">dodaj pierwszy</a>
                         </td>
                     </tr>
@@ -176,8 +192,126 @@
 
 <script>
 (function() {
+    const formularz = document.getElementById('formularz-rezerwacji');
     const modal = document.getElementById('pojazd-modal');
-    if (!modal) return;
+    if (!formularz || !modal) return;
+
+    const pole = (id) => document.getElementById(id);
+    const poleKlient = pole('id_klient');
+    const poleKlasa = pole('id_klasa_pojazdu');
+    const poleCennik = pole('id_cennik');
+    const poleCena = pole('id_cena_jednostkowa');
+    const poleWaluta = pole('id_waluta');
+    const poleOd = pole('id_planowana_data_wydania');
+    const poleDo = pole('id_planowana_data_zwrotu');
+    const wycenaTresc = document.getElementById('wycena-tresc');
+    const tylkoWolne = document.getElementById('tylko-wolne');
+    const rezerwacjaId = formularz.dataset.rezerwacja || '';
+
+    let zajete = {};        // id pojazdu -> etykieta kolidujacej rezerwacji
+    let terminPodany = false;
+
+    /* ---------------- wycena z cennika ---------------- */
+
+    async function odswiezWycene() {
+        if (!poleKlasa || !poleKlasa.value) {
+            wycenaTresc.textContent = 'Wybierz klasę pojazdu i terminy — cena podpowie się z cennika.';
+            return;
+        }
+        const params = new URLSearchParams({
+            klasa: poleKlasa.value,
+            klient: poleKlient ? poleKlient.value : '',
+            cennik: poleCennik ? poleCennik.value : '',
+            od: poleOd ? poleOd.value : '',
+            do: poleDo ? poleDo.value : ''
+        });
+        let dane;
+        try {
+            const res = await fetch('/api/wycena/?' + params.toString());
+            if (!res.ok) return;
+            dane = await res.json();
+        } catch (e) { return; }
+
+        if (!dane.cennik) {
+            wycenaTresc.textContent = 'Brak cennika z pozycją dla tej klasy pojazdu — podaj cenę ręcznie.';
+            return;
+        }
+
+        // podpowiedz cennika i ceny, jesli uzytkownik nie wpisal wlasnych
+        if (poleCennik && !poleCennik.value && dane.cennik_id) {
+            poleCennik.value = dane.cennik_id;
+        }
+        if (poleCena && !poleCena.value && dane.cena) {
+            poleCena.value = dane.cena;
+        }
+        if (poleWaluta && dane.waluta && !poleWaluta.dataset.zmienione) {
+            poleWaluta.value = dane.waluta;
+        }
+
+        const czesci = [`${dane.cennik} — stawka ${dane.typ_stawki.toLowerCase()} ${dane.cena} ${dane.waluta}`];
+        if (dane.dni) {
+            czesci.push(`${dane.dni} dni najmu (${dane.jednostki} × stawka)`);
+        }
+        const cenaRecznie = poleCena && poleCena.value && dane.cena && poleCena.value !== dane.cena;
+        if (dane.dni && poleCena && poleCena.value) {
+            const wartosc = (parseFloat(poleCena.value) * dane.jednostki).toFixed(2);
+            czesci.push(`<strong>razem ${wartosc} ${dane.waluta}</strong>${cenaRecznie ? ' (cena własna)' : ''}`);
+        }
+        wycenaTresc.innerHTML = czesci.join(' · ');
+    }
+
+    /* ---------------- dostepnosc pojazdow ---------------- */
+
+    async function odswiezDostepnosc() {
+        zajete = {};
+        terminPodany = !!(poleOd && poleOd.value && poleDo && poleDo.value);
+        if (terminPodany) {
+            const params = new URLSearchParams({ od: poleOd.value, do: poleDo.value, rezerwacja: rezerwacjaId });
+            try {
+                const res = await fetch('/api/dostepnosc/?' + params.toString());
+                if (res.ok) {
+                    const dane = await res.json();
+                    zajete = dane.zajete || {};
+                    terminPodany = dane.termin;
+                }
+            } catch (e) { /* brak sieci - pokazujemy wszystko */ }
+        }
+        pokazWiersze();
+    }
+
+    function pokazWiersze() {
+        const klasa = poleKlasa ? poleKlasa.value : '';
+        const filtry = Array.from(modal.querySelectorAll('.konfig-filtry input'));
+        const wartosci = filtry.map(i => i.value.trim().toLowerCase());
+
+        modal.querySelectorAll('tbody tr[data-id]').forEach(function(tr) {
+            const id = tr.getAttribute('data-id');
+            const komorka = tr.querySelector('.komorka-dostepnosc');
+            const zajetyPrzez = zajete[id];
+
+            if (!terminPodany) {
+                komorka.innerHTML = '<span class="odznaka odznaka-neutralny">podaj termin</span>';
+            } else if (zajetyPrzez) {
+                komorka.innerHTML = '<span class="odznaka odznaka-blad">zajęty</span>';
+                komorka.title = zajetyPrzez;
+            } else {
+                komorka.innerHTML = '<span class="odznaka odznaka-ok">wolny</span>';
+                komorka.title = '';
+            }
+
+            const pasujeKlasa = !klasa || tr.getAttribute('data-klasa') === klasa;
+            const pasujeTermin = !(tylkoWolne.checked && terminPodany && zajetyPrzez);
+            const pasujeFiltr = wartosci.every(function(w, i) {
+                if (!w) return true;
+                const td = tr.children[i];
+                return td && td.textContent.toLowerCase().includes(w);
+            });
+            tr.style.display = (pasujeKlasa && pasujeTermin && pasujeFiltr) ? '' : 'none';
+        });
+    }
+
+    /* ---------------- modal wyboru pojazdu ---------------- */
+
     let aktywnySelect = null;
     let aktywnyDisplay = null;
 
@@ -197,6 +331,7 @@
         display.addEventListener('click', function() {
             aktywnySelect = select;
             aktywnyDisplay = display;
+            pokazWiersze();
             pokaz();
         });
     });
@@ -225,21 +360,26 @@
         });
     });
 
-    const filtry = Array.from(modal.querySelectorAll('.konfig-filtry input'));
-    filtry.forEach(function(inp) {
+    modal.querySelectorAll('.konfig-filtry input').forEach(function(inp) {
         inp.addEventListener('keydown', function(e) { if (e.key === 'Enter') e.preventDefault(); });
-        inp.addEventListener('input', function() {
-            const wartosci = filtry.map(i => i.value.trim().toLowerCase());
-            modal.querySelectorAll('tbody tr[data-id]').forEach(function(tr) {
-                const pasuje = wartosci.every(function(w, i) {
-                    if (!w) return true;
-                    const td = tr.children[i];
-                    return td && td.textContent.toLowerCase().includes(w);
-                });
-                tr.style.display = pasuje ? '' : 'none';
-            });
-        });
+        inp.addEventListener('input', pokazWiersze);
     });
+    tylkoWolne.addEventListener('change', pokazWiersze);
+
+    /* ---------------- reakcje na zmiany w formularzu ---------------- */
+
+    [poleKlient, poleKlasa, poleCennik].forEach(function(p) {
+        if (p) p.addEventListener('change', odswiezWycene);
+    });
+    if (poleCena) poleCena.addEventListener('input', odswiezWycene);
+    if (poleWaluta) poleWaluta.addEventListener('change', function() { poleWaluta.dataset.zmienione = '1'; });
+    [poleOd, poleDo].forEach(function(p) {
+        if (p) p.addEventListener('change', function() { odswiezWycene(); odswiezDostepnosc(); });
+    });
+    if (poleKlasa) poleKlasa.addEventListener('change', pokazWiersze);
+
+    odswiezWycene();
+    odswiezDostepnosc();
 })();
 </script>
 {% endblock %}

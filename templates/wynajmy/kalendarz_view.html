@@ -1,0 +1,73 @@
+<div class="naglowek-strony">
+    <h1 class="page-title">Kalendarz rezerwacji</h1>
+    <div class="pasek-akcji">
+        <a href="{% url 'rezerwacje' %}" class="btn btn-secondary"
+           hx-get="{% url 'rezerwacje' %}" hx-target="#main-content" hx-push-url="true">Lista</a>
+        {% if uprawnienia.operacje %}<a href="{% url 'dodaj_rezerwacje' %}" class="btn btn-primary">+ Dodaj rezerwację</a>{% endif %}
+    </div>
+</div>
+
+<div class="card">
+    <div class="kalendarz-pasek">
+        <div class="pasek-akcji">
+            <a class="btn btn-secondary" href="?start={{ poprzedni }}&dni={{ liczba_dni }}"
+               hx-get="?start={{ poprzedni }}&dni={{ liczba_dni }}" hx-target="#main-content" hx-push-url="true">&larr;</a>
+            <a class="btn btn-secondary" href="{% url 'kalendarz_rezerwacji' %}?dni={{ liczba_dni }}"
+               hx-get="{% url 'kalendarz_rezerwacji' %}?dni={{ liczba_dni }}" hx-target="#main-content" hx-push-url="true">Dziś</a>
+            <a class="btn btn-secondary" href="?start={{ nastepny }}&dni={{ liczba_dni }}"
+               hx-get="?start={{ nastepny }}&dni={{ liczba_dni }}" hx-target="#main-content" hx-push-url="true">&rarr;</a>
+        </div>
+        <strong class="kalendarz-zakres">{{ start|date:"j E Y" }} — {{ dni|last|date:"j E Y" }}</strong>
+        <div class="pasek-akcji">
+            <a class="btn {% if liczba_dni == 7 %}btn-primary{% else %}btn-secondary{% endif %}" href="?start={{ start|date:'Y-m-d' }}&dni=7"
+               hx-get="?start={{ start|date:'Y-m-d' }}&dni=7" hx-target="#main-content" hx-push-url="true">7 dni</a>
+            <a class="btn {% if liczba_dni == 14 %}btn-primary{% else %}btn-secondary{% endif %}" href="?start={{ start|date:'Y-m-d' }}&dni=14"
+               hx-get="?start={{ start|date:'Y-m-d' }}&dni=14" hx-target="#main-content" hx-push-url="true">14 dni</a>
+            <a class="btn {% if liczba_dni == 30 %}btn-primary{% else %}btn-secondary{% endif %}" href="?start={{ start|date:'Y-m-d' }}&dni=30"
+               hx-get="?start={{ start|date:'Y-m-d' }}&dni=30" hx-target="#main-content" hx-push-url="true">30 dni</a>
+        </div>
+    </div>
+
+    <div class="kalendarz-przewijanie">
+        <div class="kalendarz" style="--dni: {{ liczba_dni }};">
+            <div class="kalendarz-rog">Pojazd</div>
+            <div class="kalendarz-dni">
+                {% for dzien in dni %}
+                <div class="kalendarz-dzien{% if dzien == dzis %} kalendarz-dzis{% endif %}">
+                    <span>{{ dzien|date:"D"|slice:":2" }}</span>
+                    <strong>{{ dzien|date:"j" }}</strong>
+                    <small>{{ dzien|date:"m" }}</small>
+                </div>
+                {% endfor %}
+            </div>
+
+            {% for wiersz in wiersze %}
+            <div class="kalendarz-pojazd">
+                <a href="{% url 'pojazd_szczegoly' wiersz.pojazd.id %}">{{ wiersz.pojazd.numer_rejestracyjny }}</a>
+                <small>{{ wiersz.pojazd.konfiguracja.model }}</small>
+            </div>
+            <div class="kalendarz-wiersz">
+                {% for dzien in dni %}
+                <div class="kalendarz-komorka{% if dzien == dzis %} kalendarz-dzis{% endif %}"></div>
+                {% endfor %}
+                {% for pasek in wiersz.paski %}
+                <a class="kalendarz-pasek-rezerwacji pasek-{{ pasek.kolor }}"
+                   style="grid-column: {{ pasek.start }} / {{ pasek.koniec }};"
+                   href="{% url 'rezerwacja_szczegoly' pasek.rezerwacja.id %}"
+                   title="{{ pasek.rezerwacja.numer }} · {{ pasek.rezerwacja.klient }} · {{ pasek.rezerwacja.planowana_data_wydania|date:'d.m H:i' }} – {{ pasek.rezerwacja.planowana_data_zwrotu|date:'d.m H:i' }}">
+                    {{ pasek.rezerwacja.klient }}
+                </a>
+                {% endfor %}
+            </div>
+            {% empty %}
+            <div class="kalendarz-pusty">Brak pojazdów w bazie — <a href="{% url 'dodaj_pojazd' %}">dodaj pierwszy</a>.</div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="kalendarz-legenda">
+        <span><i class="pasek-info"></i> Nowa</span>
+        <span><i class="pasek-ok"></i> Potwierdzona</span>
+        <span><i class="pasek-akcent"></i> W toku</span>
+    </div>
+</div>

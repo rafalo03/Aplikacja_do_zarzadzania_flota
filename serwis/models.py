@@ -41,12 +41,29 @@ class ZlecenieSerwisowe(models.Model):
     rzeczywisty_koszt_netto = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     przebieg = models.IntegerField(null=True, blank=True)
 
+    KOLORY_STATUSOW = {
+        'otwarte': 'info',
+        'w_realizacji': 'akcent',
+        'zamkniete': 'ok',
+        'anulowane': 'blad',
+    }
+
     def __str__(self):
         return f"Zlecenie {self.pk} - {self.pojazd} ({self.get_typ_display()})"
+
+    @property
+    def kolor_statusu(self):
+        return self.KOLORY_STATUSOW.get(self.status, 'neutralny')
+
+    @property
+    def koszt(self):
+        """Koszt rzeczywisty, a jesli go nie ma - planowany."""
+        return self.rzeczywisty_koszt_netto if self.rzeczywisty_koszt_netto is not None else self.planowany_koszt_netto
 
     class Meta:
         verbose_name = 'Zlecenie serwisowe'
         verbose_name_plural = 'Zlecenia serwisowe'
+        ordering = ['-data_przyjecia', '-pk']
 
 
 class SzkodaBladcharska(models.Model):
@@ -76,12 +93,28 @@ class SzkodaBladcharska(models.Model):
     data_zdarzenia = models.DateField(null=True, blank=True)
     opis = models.TextField(null=True, blank=True)
 
+    KOLORY_STATUSOW = {
+        'zgloszona': 'uwaga',
+        'w_realizacji': 'akcent',
+        'zamknieta': 'ok',
+        'anulowana': 'blad',
+    }
+
     def __str__(self):
         return f"Szkoda {self.pk} - {self.pojazd}"
+
+    @property
+    def kolor_statusu(self):
+        return self.KOLORY_STATUSOW.get(self.status, 'neutralny')
+
+    @property
+    def koszt(self):
+        return self.rzeczywisty_koszt_netto if self.rzeczywisty_koszt_netto is not None else self.planowany_koszt_netto
 
     class Meta:
         verbose_name = 'Szkoda blacharska'
         verbose_name_plural = 'Szkody blacharskie'
+        ordering = ['-data_zdarzenia', '-pk']
 
 
 class Uszkodzenie(models.Model):
@@ -96,6 +129,15 @@ class Uszkodzenie(models.Model):
     def __str__(self):
         return f"Uszkodzenie {self.pk} - {self.pojazd}"
 
+    @property
+    def kolor_statusu(self):
+        return 'ok' if self.naprawione else 'uwaga'
+
+    @property
+    def status_opis(self):
+        return 'Naprawione' if self.naprawione else 'Do naprawy'
+
     class Meta:
         verbose_name = 'Uszkodzenie'
         verbose_name_plural = 'Uszkodzenia'
+        ordering = ['-data_wykrycia', '-pk']

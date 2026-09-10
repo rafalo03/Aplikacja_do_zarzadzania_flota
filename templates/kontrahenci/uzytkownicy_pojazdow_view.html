@@ -2,7 +2,7 @@
 <div class="card">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <h3>Wszyscy użytkownicy ({{ uzytkownicy.count }})</h3>
-        <a href="{% url 'dodaj_uzytkownika_pojazdu' %}" class="btn btn-primary">+ Dodaj użytkownika</a>
+        {% if uprawnienia.operacje %}<a href="{% url 'dodaj_uzytkownika_pojazdu' %}" class="btn btn-primary">+ Dodaj użytkownika</a>{% endif %}
     </div>
     <table class="table" id="tabela-uzytkownicy-pojazdow">
         <thead>

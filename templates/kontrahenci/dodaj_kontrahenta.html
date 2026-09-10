@@ -1,21 +1,54 @@
 {% extends 'base.html' %}
-{% block title %}{{ tytul|default:"Dodaj kontrahenta" }}{% endblock %}
+{% block title %}{{ tytul }}{% endblock %}
 {% block content %}
-<h1 class="page-title">{{ tytul|default:"Dodaj kontrahenta" }}</h1>
+<h1 class="page-title">{{ tytul }}</h1>
 <div class="card">
     <form method="post">
         {% csrf_token %}
+        {% if form.non_field_errors %}<div class="alert alert-blad">{{ form.non_field_errors.0 }}</div>{% endif %}
+
         <div class="form-grid">
             {% for field in form %}
-            <div class="form-group">
-                <label>{{ field.label }}</label>
-                {{ field }}
-                {% if field.errors %}<p class="form-error">{{ field.errors }}</p>{% endif %}
-            </div>
+            {% include 'pojazdy/_pole.html' with field=field %}
             {% endfor %}
         </div>
-        <div style="margin-top: 20px; display: flex; gap: 12px;">
-            <button type="submit" class="btn btn-primary">{{ przycisk|default:"Zapisz" }}</button>
+
+        <h3 style="margin-top: 24px; margin-bottom: 12px;">Dodatkowe dane kontaktowe</h3>
+        {{ formset.management_form }}
+        {% if formset.non_form_errors %}<p class="form-error">{{ formset.non_form_errors }}</p>{% endif %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th style="width: 160px;">Typ</th>
+                    <th>Wartość</th>
+                    <th>Opis</th>
+                    <th style="width: 60px;">Usuń</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for kontakt_form in formset %}
+                <tr>
+                    <td>
+                        {% for hidden in kontakt_form.hidden_fields %}{{ hidden }}{% endfor %}
+                        {{ kontakt_form.typ }}
+                        {% if kontakt_form.typ.errors %}<p class="form-error">{{ kontakt_form.typ.errors.0 }}</p>{% endif %}
+                    </td>
+                    <td>
+                        {{ kontakt_form.wartosc }}
+                        {% if kontakt_form.wartosc.errors %}<p class="form-error">{{ kontakt_form.wartosc.errors.0 }}</p>{% endif %}
+                    </td>
+                    <td>
+                        {{ kontakt_form.opis }}
+                        {% if kontakt_form.opis.errors %}<p class="form-error">{{ kontakt_form.opis.errors.0 }}</p>{% endif %}
+                    </td>
+                    <td style="text-align: center;">{% if kontakt_form.instance.pk %}{{ kontakt_form.DELETE }}{% endif %}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="form-akcje">
+            <button type="submit" class="btn btn-primary">{{ przycisk }}</button>
             <a href="{% url 'kontrahenci' %}" class="btn btn-secondary">Anuluj</a>
         </div>
     </form>
